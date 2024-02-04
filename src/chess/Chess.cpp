@@ -1,13 +1,17 @@
 #include "Chess.h"
 
+#include <entt/entity/fwd.hpp>
 #include <utility>
 
 
 #include "imgui.h"
 #include "schism/Components/Sprite.h"
+#include "schism/Core/Resources.h"
 #include "schism/Renderer/SpriteRenderer.h"
 #include "Server/Messages.h"
 #include "Common.h"
+#include "schism/Renderer/TextRenderer.h"
+#include "schism/Renderer/Texture.h"
 
 using namespace Schism;
 
@@ -59,11 +63,22 @@ namespace Chess
                                           {
                                                 m_GameClient->Start();
                                           });
+
+		TextRenderer::Init();
+		Font hackFont = TextRenderer::LoadFontFace("res/fonts/Hack-Regular.ttf");
+        hackFont.atlas_texture_index = 13;
+
+		m_fontAtlas = Renderer::Texture::CreateRef(hackFont.atlas_width, hackFont.atlas_height, 1, GL_RED);
+		TextRenderer::RenderFontToAtlas(hackFont, m_fontAtlas);
+
+		m_atlasSprite = m_Registry.create();
+		m_Registry.emplace<Components::Sprite>(m_atlasSprite, entt::resource(m_fontAtlas));
 	}
 
 	void Chess::OnDetach()
 	{
         m_GameClient->Stop();
+		m_textRenderer.Deinit();
 	}
 
 	void Chess::OnPause()
@@ -89,10 +104,14 @@ namespace Chess
 
 	void Chess::OnDraw()
 	{
-     
 
 		SpriteRenderer::BeginScene(m_Camera.GetProjectionMatrix());
 		m_Game->DrawBoard();
+
+        Components::Transform2D transform;
+        transform.position = { 200.f, 200.f, 0.f };
+        transform.scale = { 200.f, 200.f };
+        Schism::SpriteRenderer::Draw(transform, m_Registry.get<Components::Sprite>(m_atlasSprite));
 
 		ImGui::Begin("Options");
         if (ImGui::Button("Start game"))

@@ -103,7 +103,7 @@ void EditTransform(const Renderer::OrthographicCamera& camera, const glm::mat4& 
     static bool useSnap(false);
     if (ImGui::IsKeyPressed(ImGuiKey_S))
         useSnap = !useSnap;
-    ImGui::Checkbox("", &useSnap);
+    ImGui::Checkbox("Use snap", &useSnap);
     ImGui::SameLine();
     ImGuiIO& io = ImGui::GetIO();
     ImGuizmo::SetRect(0, 0, io.DisplaySize.x, io.DisplaySize.y);

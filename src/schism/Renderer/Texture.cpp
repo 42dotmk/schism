@@ -23,6 +23,15 @@ namespace Schism::Renderer
         m_Height = height;
         m_ChannelCount = num_channels;
         m_Format = format;
+
+        glTextureParameteri(m_TextureID, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTextureParameteri(m_TextureID, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+        glTextureParameteri(m_TextureID, GL_TEXTURE_WRAP_S, GL_REPEAT);
+        glTextureParameteri(m_TextureID, GL_TEXTURE_WRAP_T, GL_REPEAT);
+
+        glTexImage2D(GL_TEXTURE_2D, 0, m_Format, m_Width, m_Height, 0, m_Format, GL_UNSIGNED_BYTE, nullptr);
+        glGenerateMipmap(GL_TEXTURE_2D);
     }
 
 	Texture::Texture(const std::string& path, bool pixelart)

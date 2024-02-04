@@ -3,6 +3,7 @@
 #include "chess/Chess.h"
 #include "schism/Audio/Source.h"
 #include "schism/Audio/WavLoader.h"
+#include "schism/Renderer/TextRenderer.h"
 #include "schism/System/Log.h"
 #include <AL/al.h>
 #include <AL/alc.h>
@@ -28,8 +29,8 @@ Game::Game()
     m_Ctx->GlobalAssets.Audio.Load("testaudio", "res/sample-3s.wav");
 
 	SpriteRenderer::RegisterShader(m_Ctx->GlobalAssets.Shaders.GetHandle("spriterenderer"));
-    m_SceneManager.Register<SampleScene>("sample scene");
-	// m_SceneManager.Register<Chess::Chess>("chess");
+    // m_SceneManager.Register<SampleScene>("sample scene");
+	m_SceneManager.Register<Chess::Chess>("chess");
 
     ALfloat listenerOri[] = { 0.f, 0.f, 1.f, 0.f, 1.f, 0.f };
 

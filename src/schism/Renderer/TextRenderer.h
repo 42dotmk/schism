@@ -1,6 +1,7 @@
 #pragma once
 
 #include "schism/Core/Resources.h"
+#include <cstdint>
 #include <vector>
 #include <ft2build.h>
 #include FT_FREETYPE_H
@@ -25,7 +26,7 @@ namespace Schism
         std::uint32_t atlas_width;
         std::uint32_t atlas_height;
         Ref<Renderer::Texture> atlas;
-        uint32_t atlas_texture_index;
+        uint8_t atlas_texture_index;
     };
 
     class TextRenderer

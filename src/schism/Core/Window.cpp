@@ -6,6 +6,7 @@
 #include "Events/WindowEvents.h"
 #include "glad/glad.h"
 #include "schism/System/Log.h"
+#include <GLFW/glfw3.h>
 
 namespace Schism::Core
 {
@@ -33,6 +34,7 @@ namespace Schism::Core
 			SC_CORE_TRACE("Couldn't create loading context!");
 		}
 
+		glfwWindowHint(GLFW_DOUBLEBUFFER, GLFW_TRUE);
 		glfwWindowHint(GLFW_VISIBLE, GL_TRUE);
 		m_WindowPtr = glfwCreateWindow(w, h, name, NULL, m_LoadWinPtr);
 
@@ -52,6 +54,8 @@ namespace Schism::Core
 
 		m_Data.Width = w;
 		m_Data.Height = h;
+
+		glfwSwapInterval(1);
 		
 		HookGLFWEventFunctions();
 	}

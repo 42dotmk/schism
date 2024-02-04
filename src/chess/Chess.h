@@ -8,6 +8,9 @@
 #include "schism/Game/GameEvent/CallbackBus.h"
 #include "schism/Game/GameEvent/SyncBus.h"
 #include "schism/Game/GameEvent/SyncListener.h"
+#include "schism/Renderer/TextRenderer.h"
+#include "schism/Renderer/Texture.h"
+#include "schism/System/Ptr.h"
 
 using namespace Schism;
 
@@ -35,5 +38,9 @@ namespace Chess
 		std::shared_ptr<Game> m_Game;
         std::shared_ptr<GameClient> m_GameClient;
 		Renderer::OrthographicCamera m_Camera;
-	};
+
+		Ref<Renderer::Texture> m_fontAtlas;
+		TextRenderer m_textRenderer;
+        entt::entity m_atlasSprite;
+    };
 }

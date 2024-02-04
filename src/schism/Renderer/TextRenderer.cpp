@@ -38,7 +38,7 @@ namespace Schism
             return result_font;
         }
 
-        std::uint16_t num_faces = font_face->num_faces;
+        std::uint16_t num_faces = static_cast<std::uint16_t>(font_face->num_faces);
         if (FT_Done_Face(font_face))
         {
             SC_CORE_ERROR("Failed to discard font face object! Returning empty font...");
@@ -77,11 +77,11 @@ namespace Schism
         result_font.characters.reserve(character_map.size());
         result_font.atlas_width = 0; result_font.atlas_height = 0;
 
-        for (const unsigned char c : character_map)
+        for (const auto c : character_map)
         {
             if (FT_Load_Char(face, c, FT_LOAD_BITMAP_METRICS_ONLY))
             {
-                SC_CORE_ERROR("Failed to load character {}", c);
+                SC_CORE_ERROR("Failed to load character {}", static_cast<char>(c));
                 continue;
             }
 
@@ -126,6 +126,8 @@ namespace Schism
 
             rolling_x += glyph->bitmap.width;
         }
+
+        glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
     }
 
 } // Schism
