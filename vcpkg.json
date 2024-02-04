@@ -11,6 +11,7 @@
         "parallel-hashmap",
         "stb",
         "spdlog",
+        "freetype",
         {
             "name": "imgui",
             "features": [

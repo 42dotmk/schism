@@ -1,9 +1,0 @@
-[submodule "vendor/phmap"]
-	path = vendor/phmap
-	url = https://github.com/greg7mdp/parallel-hashmap.git
-[submodule "vendor/atomic_queue"]
-	path = vendor/atomic_queue
-	url = https://github.com/max0x7ba/atomic_queue.git
-[submodule "vendor/dr_libs"]
-	path = vendor/dr_libs
-	url = https://github.com/mackron/dr_libs.git

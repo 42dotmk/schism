@@ -21,6 +21,7 @@ find_package(asio CONFIG REQUIRED)
 find_package(Stb REQUIRED)
 find_package(sol2 CONFIG REQUIRED)
 find_package(lua REQUIRED)
+find_package(Freetype REQUIRED)
 find_path(PARALLEL_HASHMAP_INCLUDE_DIRS "parallel_hashmap/btree.h")
 
 set(CMAKE_CXX_STANDARD 20)
@@ -96,6 +97,7 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
     OpenAL::OpenAL
     spdlog::spdlog
     sol2
+    Freetype::Freetype
     ${LUA_LIBRARIES}
 )
 
