@@ -2,7 +2,7 @@
 
 #include <glad/glad.h>
 #include <string>
-#include <glm.hpp>
+#include <glm/glm.hpp>
 
 #include "schism/System/System.h"
 

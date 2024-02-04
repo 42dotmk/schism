@@ -1,6 +1,6 @@
 #include "Shader.h"
 
-#include <gtc/type_ptr.hpp>
+#include <glm/gtc/type_ptr.hpp>
 #include <iostream>
 
 #include "schism/System/FileIO.h"

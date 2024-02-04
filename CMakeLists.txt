@@ -5,13 +5,25 @@ option(GLFW_BUILD_DOCS OFF)
 option(GLFW_BUILD_EXAMPLES OFF)
 option(GLFW_BUILD_TESTS OFF)
 
-add_subdirectory(vendor/GLFW)
-add_subdirectory(vendor/spdlog)
-add_subdirectory(vendor/entt)
-set(FT_DISABLE_HARFBUZZ TRUE)
-add_subdirectory(vendor/freetype)
+# set(CMAKE_TOOLCHAIN_FILE $ENV{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake)
+# find_package(glfw3 CONFIG REQUIRED)
+include($ENV{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake)
 
-set(CMAKE_CXX_STANDARD 17)
+find_package(glfw3 CONFIG REQUIRED)
+find_package(EnTT CONFIG REQUIRED)
+find_package(glad CONFIG REQUIRED)
+find_package(glm CONFIG REQUIRED)
+find_package(imgui CONFIG REQUIRED)
+find_package(imguizmo CONFIG REQUIRED)
+find_package(OpenAL CONFIG REQUIRED)
+find_package(spdlog CONFIG REQUIRED)
+find_package(asio CONFIG REQUIRED)
+find_package(Stb REQUIRED)
+find_package(sol2 CONFIG REQUIRED)
+find_package(lua REQUIRED)
+find_path(PARALLEL_HASHMAP_INCLUDE_DIRS "parallel_hashmap/btree.h")
+
+set(CMAKE_CXX_STANDARD 20)
 
 if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
     option(ENABLE_SANITIZER "Enable ASAN/LSAN/UBSAN." OFF)
@@ -41,30 +53,17 @@ else()
     add_compile_definitions(SC_NODEBUG)
 endif()
 
-add_compile_definitions(IMGUI_IMPL_OPENGL_LOADER_GLAD)
+add_compile_definitions(IMGUI_IMPL_OPENGL_LOADER_GLAD USE_IMGUI_API)
 
 include_directories(
-                    vendor/glad/include/
-                    vendor/GLFW/include/
-                    vendor/glm/glm/
-                    vendor/imgui/
-                    vendor/spdlog/include/
-                    vendor/entt/src
-                    vendor/stb/
                     vendor/json/include/
                     vendor/phmap/parallel_hashmap/
+                    vendor/atomic_queue/include/
+                    vendor/cppack/include/
+                    ${Stb_INCLUDE_DIR}
+                    ${LUA_INCLUDE_DIR}
                     src/)
 
-file(GLOB STB_SRC vendor/stb/*.c)
-file(GLOB GLAD_SOURCE vendor/glad/src/glad.c)
-file(GLOB IMGUI_SOURCES vendor/imgui/*.cpp)
-file(GLOB IMGUI_HEADERS vendor/imgui/*.h)
-file(GLOB IMGUI_GLFW_HEADERS 
-                    vendor/imgui/backends/imgui_impl_glfw.h
-                    vendor/imgui/backends/imgui_impl_opengl3.h)
-file(GLOB IMGUI_GLFW_SOURCES 
-                    vendor/imgui/backends/imgui_impl_opengl3.cpp
-                    vendor/imgui/backends/imgui_impl_glfw.cpp)
 
 file(GLOB_RECURSE SOURCES src/*.cpp)
 file(GLOB_RECURSE HEADERS src/*.h)
@@ -83,33 +82,31 @@ add_definitions(-DGLFW_INCLUDE_NONE
                 -DPROJECT_SOURCE_DIR=\"${PROJECT_SOURCE_DIR}\")
 
 add_executable(${PROJECT_NAME}
-                    ${STB_SRC}
-                    ${IMGUI_SOURCES}
-                    ${IMGUI_GLFW_SOURCES}
-                    ${GLAD_SOURCE} 
-                    ${SOURCES} 
-                    ${IMGUI_HEADERS}
-                    ${HEADERS} 
-                    ${IMGUI_GLFW_HEADERS}
+                    ${SOURCES}
                     ${PROJECT_CONFIGS})
 
-target_link_libraries(${PROJECT_NAME}
-                      glfw
-                      ${GLFW_LIBRARIES}
-                      ${GLAD_LIBRARIES}
-                      freetype)
+target_link_libraries(${PROJECT_NAME} PRIVATE
+    asio::asio
+    EnTT::EnTT
+    glad::glad
+    glfw
+    glm::glm
+    imgui::imgui
+    imguizmo::imguizmo
+    OpenAL::OpenAL
+    spdlog::spdlog
+    sol2
+    ${LUA_LIBRARIES}
+)
 
-# Not sure if this will work on linux as the default output bin dir might be different
-# will have to test it
+target_include_directories(${PROJECT_NAME} PRIVATE ${PARALLEL_HASHMAP_INCLUDE_DIRS})
 
-# add_custom_command(
-#        TARGET ${PROJECT_NAME} POST_BUILD \
-#        COMMAND ${CMAKE_COMMAND} -E copy_directory
-#                ${PROJECT_SOURCE_DIR}/res  
-#                ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}/res)
-              
+set(OUTPUT_DIR ${CMAKE_SOURCE_DIR}/bin/)
+
 set_target_properties(${PROJECT_NAME} PROPERTIES
-    RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${PROJECT_NAME})
+    RUNTIME_OUTPUT_DIRECTORY ${OUTPUT_DIR}
+    LIBRART_OUTPUT_DIRECTORY ${OUTPUT_DIR}
+)
 
 add_custom_command(
     TARGET ${PROJECT_NAME} POST_BUILD

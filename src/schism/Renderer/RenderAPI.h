@@ -1,7 +1,7 @@
 #pragma once
 #include <cstdint>
 
-#include <vec4.hpp>
+#include <glm/vec4.hpp>
 
 namespace Schism::Renderer
 {

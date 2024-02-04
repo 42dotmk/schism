@@ -1,5 +1,6 @@
 #pragma once
 #include <string>
+#include <array>
 
 #include "Texture.h"
 #include "schism/Core/Resources.h"

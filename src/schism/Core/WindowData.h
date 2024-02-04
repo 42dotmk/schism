@@ -1,7 +1,7 @@
 #pragma once
 #include <functional>
 #include <array>
-#include <vec2.hpp>
+#include <glm/vec2.hpp>
 
 
 #include "Events/Event.h"

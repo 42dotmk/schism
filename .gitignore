@@ -1,5 +1,9 @@
-out/
 .vs/
-cmake-build-release*/
-cmake-build-debug*/
 .idea/
+bin/
+build/
+cmake-build-*/
+compile_commands.json
+.cache/
+out/
+vcpkg_installed

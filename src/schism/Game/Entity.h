@@ -2,10 +2,11 @@
 
 #include <entt/entt.hpp>
 #include <schism/Interfaces/IScene.h>
+#include <schism/Scripting/Lua/Binding.h>
 
 namespace Schism
 {
-	class Entity
+	class Entity: public Scripting::Lua::Binding
 	{
 	public:
 		Entity(IScene* scene, entt::entity id)
@@ -32,8 +33,7 @@ namespace Schism
 		template<typename T>
 		bool HasComponent()
 		{
-			//return !m_Scene->Registry().empty<T>(m_Id);
-			return false;
+            return m_Scene->Registry().any_of<T>(m_Id);
 		}
 
 		template<typename T>
@@ -42,6 +42,21 @@ namespace Schism
 			m_Scene->Registry().remove<T>(m_Id);
 		}
 
+        void Update(float dt)
+        {
+            // call the lua update function
+        }
+
+        void Bind(sol::state& lua)
+        {
+            // bind the object here
+            // also script file here
+        }
+    private:
+        void OnUpdate(float dt)
+        {
+
+        }
 	private:
 		entt::entity m_Id;
 		IScene* m_Scene;

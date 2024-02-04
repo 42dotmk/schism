@@ -4,6 +4,7 @@
 
 #include "Renderer2D.h"
 #include "SpriteRenderer.h"
+#include "schism/System/Log.h"
 
 namespace Schism::Renderer
 {
@@ -14,14 +15,14 @@ namespace Schism::Renderer
 
 		glEnable(GL_DEPTH_TEST);
 
-		Renderer2D::Init();
+		// Renderer2D::Init();
 		// This will be deprecated, stays here to test other parts while the batch renderer gets finished
 		SpriteRenderer::Init();  
 	}
 
 	void API::Shutdown()
 	{
-		Renderer2D::Shutdown();
+		// Renderer2D::Shutdown();
 		SpriteRenderer::Shutdown();
 	}
 	

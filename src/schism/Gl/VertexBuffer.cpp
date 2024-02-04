@@ -1,4 +1,5 @@
 #include "VertexBuffer.h"
+#include "schism/System/Log.h"
 
 #include <glad/glad.h>
 

@@ -3,32 +3,48 @@
 #include <entt/entt.hpp>
 
 #include "AssetManager.h"
+#include "schism/Audio/Source.h"
 #include "schism/Gl/Shader.h"
 #include "schism/Renderer/Texture.h"
 #include "schism/System/FileIO.h"
 
 namespace Schism::Core
 {
-	struct TextureLoader: entt::resource_loader<TextureLoader, Renderer::Texture>
+	struct TextureLoader
 	{
-		Ref<Renderer::Texture> static load(const std::string& path, bool pixelart = false)
+        using result_type = Ref<Renderer::Texture>;
+
+		result_type operator()(const std::string& path, bool pixelart = false) const
 		{
 			return Renderer::Texture::CreateRef(path, pixelart);
 		}
 	};
 
-	struct ShaderLoader: entt::resource_loader<ShaderLoader, Gl::Shader>
+	struct ShaderLoader
 	{
-		Ref<Gl::Shader> static load(const std::string& vertPath, const std::string& fragPath)
-		{	 
+        using result_type = Ref<Gl::Shader>;
+
+        result_type operator()(const std::string& vertPath, const std::string& fragPath)
+        {
 			return Gl::Shader::Create(vertPath, fragPath);
 		}
 	};
+
+    struct AudioLoader
+    {
+        using result_type = Ref<Audio::Source>;
+
+        result_type operator()(const std::string& filepath)
+        {
+            return Audio::Source::Create(filepath);
+        }
+    };
 
 	struct Assets
 	{
 		AssetManager<Renderer::Texture, TextureLoader> Textures;
 		AssetManager<Gl::Shader, ShaderLoader> Shaders;
+        AssetManager<Audio::Source, AudioLoader> Audio; 
 	};
 	
 }

@@ -1,8 +1,8 @@
 #include "Renderer2D.h"
 
-#include <ext/matrix_transform.hpp>
+#include <glm/ext/matrix_transform.hpp>
 
-#include "phmap.h"
+#include <parallel_hashmap/phmap.h>
 #include "schism/Core/ResourceGlobals.h"
 #include "schism/Gl/VertexArray.h"
 #include "schism/Gl/VertexBuffer.h"
@@ -195,11 +195,13 @@ namespace Schism
 		int texIndex = -1;
 		for (auto& [slot, savedTexture] : s_RenderData.Textures)
 		{
+			/* Temporary commented, this should be reworked!
 			if (*savedTexture == *texture)
 			{
 				texIndex = slot;
 				break;
 			}
+			*/
 		}
 		if (texIndex == -1)
 		{

@@ -14,16 +14,22 @@ namespace Schism::Core
 		}
 		
 		template<typename ...Args>
-		entt::resource_handle<ResourceType> Load(const char* identifier, Args&& ...args)
+		entt::resource<ResourceType> Load(const char* identifier, Args&& ...args)
 		{
-			return m_Resource.template load<ResourceLoader>(entt::hashed_string{ identifier }, std::forward<Args>(args)...);
+            auto ret = m_Resource.load(entt::hashed_string{ identifier }, std::forward<Args>(args)...);
+
+            if (ret.second)
+            {
+                return ret.first->second;
+            }
+			return {};
 		}
 
-		entt::resource_handle<ResourceType> GetHandle(const char* identifier)
+		entt::resource<ResourceType> GetHandle(const char* identifier)
 		{
-			return m_Resource.handle(entt::hashed_string{ identifier });
+			return m_Resource[entt::hashed_string{ identifier }];
 		}
 	private:
-		entt::resource_cache<ResourceType> m_Resource;
+		entt::resource_cache<ResourceType, ResourceLoader> m_Resource;
 	};
 }

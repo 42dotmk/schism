@@ -1,5 +1,5 @@
 #pragma once
-#include <glm.hpp>
+#include <glm/glm.hpp>
 #include "schism/Interfaces/ICamera.h"
 
 namespace Schism::Renderer
