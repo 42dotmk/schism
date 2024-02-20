@@ -29,6 +29,12 @@ namespace Schism::Core
 		{
 			return m_Resource[entt::hashed_string{ identifier }];
 		}
+
+		[[nodiscard]]
+		size_t Count() const
+		{
+			return m_Resource.size();
+		}
 	private:
 		entt::resource_cache<ResourceType, ResourceLoader> m_Resource;
 	};
