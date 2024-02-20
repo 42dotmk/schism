@@ -66,9 +66,9 @@ namespace Chess
 
 		TextRenderer::Init();
 		Font hackFont = TextRenderer::LoadFontFace("res/fonts/Hack-Regular.ttf");
-        hackFont.atlas_texture_index = 13;
+        hackFont.atlas_texture_index = m_Assets.Textures.Count();
 
-		m_fontAtlas = Renderer::Texture::CreateRef(hackFont.atlas_width, hackFont.atlas_height, 1, GL_RED);
+		m_fontAtlas = Renderer::Texture::CreateRef(hackFont.atlas_width, hackFont.atlas_height, 1, GL_RED, hackFont.atlas_texture_index);
 		TextRenderer::RenderFontToAtlas(hackFont, m_fontAtlas);
 
 		m_atlasSprite = m_Registry.create();
@@ -78,7 +78,7 @@ namespace Chess
 	void Chess::OnDetach()
 	{
         m_GameClient->Stop();
-		m_textRenderer.Deinit();
+		Schism::TextRenderer::Deinit();
 	}
 
 	void Chess::OnPause()

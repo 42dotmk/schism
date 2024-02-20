@@ -16,13 +16,15 @@ namespace Schism::Renderer
 		glTextureParameteri(m_TextureID, GL_TEXTURE_WRAP_T, GL_REPEAT);
 	}
 
-    Texture::Texture(std::int32_t width, std::int32_t height, std::int8_t num_channels, GLenum format)
+    Texture::Texture(std::int32_t width, std::int32_t height, std::int8_t num_channels, GLenum format, uint8_t index)
         : Texture()
     {
         m_Width = width;
         m_Height = height;
         m_ChannelCount = num_channels;
         m_Format = format;
+
+		Bind(index);
 
         glTextureParameteri(m_TextureID, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
         glTextureParameteri(m_TextureID, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
@@ -84,9 +86,9 @@ namespace Schism::Renderer
 		return MakeRef<Texture>(path, pixelart);
 	}
 
-    Ref<Texture> Texture::CreateRef(std::int32_t width, std::int32_t height, std::int8_t num_channels, GLenum format)
+    Ref<Texture> Texture::CreateRef(std::int32_t width, std::int32_t height, std::int8_t num_channels, GLenum format, uint8_t index)
     {
-        return MakeRef<Texture>(width, height, num_channels, format);
+        return MakeRef<Texture>(width, height, num_channels, format, index);
     }
 
 	void Texture::SetData(uint8_t* data, uint32_t size)
