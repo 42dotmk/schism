@@ -23,7 +23,7 @@ namespace Schism
 
     Font TextRenderer::LoadFontFace(const std::string &fontPath)
     {
-        const std::wstring character_map = L"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_+-=[]\\;',./{}|:\"<>?;";
+        const std::string character_map = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_+-=[]\\;',./{}|:\"<>?;";
         constexpr uint8_t font_horizontal_resolution = 96;
         constexpr uint8_t font_vertical_resolution = 96;
 
@@ -38,7 +38,7 @@ namespace Schism
             return result_font;
         }
 
-        std::uint16_t num_faces = static_cast<std::uint16_t>(font_face->num_faces);
+        const auto num_faces = static_cast<std::uint16_t>(font_face->num_faces);
         if (FT_Done_Face(font_face))
         {
             SC_CORE_ERROR("Failed to discard font face object! Returning empty font...");
@@ -67,8 +67,7 @@ namespace Schism
             break;
         }
 
-        FT_Face face = result_font.face;
-        if (face == nullptr)
+        if (result_font.face == nullptr)
         {
             SC_CORE_ERROR("No font face found! Not proceeding with texture atlas generation, and returning empty font...");
             return result_font;
@@ -79,16 +78,17 @@ namespace Schism
 
         for (const auto c : character_map)
         {
-            if (FT_Load_Char(face, c, FT_LOAD_BITMAP_METRICS_ONLY))
+            const auto glyph_index = FT_Get_Char_Index(result_font.face, c);
+            if (FT_Load_Char(result_font.face, glyph_index, FT_LOAD_RENDER))
             {
                 SC_CORE_ERROR("Failed to load character {}", static_cast<char>(c));
                 continue;
             }
 
-            FT_GlyphSlot glyph = face->glyph;
+            FT_GlyphSlot glyph = result_font.face->glyph;
             FontCharacter character
             {
-                c,
+                glyph_index,
                 static_cast<int32_t>(glyph->bitmap.width),
                 static_cast<int32_t>(glyph->bitmap.rows),
                 0,
@@ -113,17 +113,18 @@ namespace Schism
         std::uint32_t rolling_x = 0;
         for (auto &character : font.characters)
         {
-            if (FT_Load_Glyph(font.face, character.char_index, FT_LOAD_RENDER))
+            if (FT_Load_Glyph(font.face, character.glyph_index, FT_LOAD_RENDER))
             {
-                SC_CORE_ERROR("Failed to load character {}, skipping.", static_cast<char>(character.char_index));
+                SC_CORE_ERROR("Failed to load character {}, skipping.", character.glyph_index);
                 continue;
             }
 
-            auto &glyph = font.face->glyph;
+            const auto &glyph = font.face->glyph;
 
             character.x = rolling_x;
-            atlas->SetSubData(glyph->bitmap.buffer, character.x, character.y, character.width, character.height);
-
+            // TODO: Find out why the stored widths and heights for the chars are different from this time!
+            // atlas->SetSubData(glyph->bitmap.buffer, character.x, atlas->GetHeight() - character.height, character.width, character.height);
+            atlas->SetSubData(glyph->bitmap.buffer, character.x, atlas->GetHeight() - glyph->bitmap.rows, glyph->bitmap.width, glyph->bitmap.rows);
             rolling_x += glyph->bitmap.width;
         }
 

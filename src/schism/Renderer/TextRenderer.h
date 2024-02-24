@@ -10,7 +10,7 @@ namespace Schism
 {
     struct FontCharacter
     {
-        std::uint32_t char_index;
+        std::uint32_t glyph_index;
         std::int32_t width;
         std::int32_t height;
         std::uint32_t x;
