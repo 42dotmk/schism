@@ -57,7 +57,7 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: binaries-linux
-        path: bin/
+        path: ${{github.workspace}}/bin/
 
   build-windows:
       runs-on: windows-latest
@@ -90,6 +90,6 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: binaries-windows
-          path: bin/
+          path: ${{github.workspace}}/bin/
   
 
