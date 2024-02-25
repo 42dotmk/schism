@@ -23,10 +23,8 @@ namespace Schism
 		glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 		
 		Ref<Core::Window> Window = MakeRef<Core::Window>();
-
 		
 		Window->Create(w, h, name);
-
     
 		Window->SetEventCallback([this](Event&& e)
 			{
@@ -57,10 +55,15 @@ namespace Schism
             return;
         }
 
+        auto vendor = std::string(reinterpret_cast<const char*>(glGetString(GL_VENDOR)));
+        auto renderer = std::string(reinterpret_cast<const char*>(glGetString(GL_RENDERER)));
+        auto version = std::string(reinterpret_cast<const char*>(glGetString(GL_VERSION)));
+        auto shader_version = std::string(reinterpret_cast<const char*>(glGetString(GL_SHADING_LANGUAGE_VERSION)));
+
 		SC_CORE_INFO("Schism succesfully initialized");
-		//SC_CORE_INFO("Gpu - {0} {1}", glGetString(GL_VENDOR), glGetString(GL_RENDERER));
-		//SC_CORE_INFO("Driver - {0}", glGetString(GL_VERSION));
-		//SC_CORE_INFO("Shader Version - {0}", glGetString(GL_SHADING_LANGUAGE_VERSION));
+		SC_CORE_INFO("Gpu - {0} {1}", vendor, renderer);
+		SC_CORE_INFO("Driver - {0}", version);
+		SC_CORE_INFO("Shader Version - {0}", shader_version);
 		SC_CORE_INFO("Processor count - {0}", std::thread::hardware_concurrency());
 
 		// TEMPPPPP !!!
