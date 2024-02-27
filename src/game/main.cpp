@@ -4,8 +4,8 @@ int main(int argc, char* argv[])
 {
     Schism::Init();
 
-    Game game;
-    game.Run();
+    Schism::Sandbox sandbox;
+    sandbox.Run();
 
     return 0;
 }

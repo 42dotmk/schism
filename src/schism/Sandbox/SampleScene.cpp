@@ -10,6 +10,7 @@
 #include "ImGuizmo.h"
 #include "schism/Renderer/OrthographicCamera.h"
 #include <glm/gtc/type_ptr.hpp>
+#include <schism/Renderer/TextRenderer.h>
 
 using namespace Schism;
 
@@ -19,19 +20,32 @@ SampleScene::SampleScene(Core::SharedContextRef ctx, const std::string& name)
 	m_Camera(0, m_Ctx->window->GetWidth(), m_Ctx->window->GetHeight(), 0)
 {
 	m_Ship1 = m_Registry.create();
+
+    TextRenderer::Init();
 }
 
-SampleScene::~SampleScene() = default;
+SampleScene::~SampleScene()
+{
+    TextRenderer::Deinit();
+}
 
 void SampleScene::OnAttach()
 {
-
 	m_Renderer.RegisterShader(m_Ctx->GlobalAssets.Shaders.GetHandle("spriterenderer"));
 	m_Registry.emplace<Components::Sprite>(m_Ship1, m_Ctx->GlobalAssets.Textures.GetHandle("ship1sprite"));
 	auto& transfrom = m_Registry.emplace<Components::Transform2D>(m_Ship1);
 
 	transfrom.position = { 200.f, 200.f, 0.f };
 	transfrom.scale = { 200.f, 200.f };
+
+    // Load font and render to texture atlas
+    auto font = TextRenderer::LoadFontFace("res/fonts/Hack-Regular.ttf");
+    const auto fontAtlas = MakeRef<Renderer::Texture>(font.atlas_width, font.atlas_height, 1, GL_RED, 0);
+    TextRenderer::RenderFontToAtlas(font, fontAtlas);
+
+    const auto fontAtlasEntity = m_Registry.create();
+    m_Registry.emplace<Components::Sprite>(fontAtlasEntity, entt::resource(fontAtlas));
+    m_Registry.emplace<Components::Transform2D>(fontAtlasEntity, Components::Transform2D(glm::vec3(200.0f), glm::vec2(1.0f), 0.0f));
 }
 
 void SampleScene::OnDetach()
