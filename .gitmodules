@@ -7,3 +7,6 @@
 [submodule "vendor/dr_libs"]
 	path = vendor/dr_libs
 	url = https://github.com/mackron/dr_libs.git
+[submodule "vendor/imguizmo"]
+	path = vendor/imguizmo
+	url = https://github.com/CedricGuillemet/ImGuizmo.git
