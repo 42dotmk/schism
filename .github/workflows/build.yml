@@ -34,6 +34,7 @@ jobs:
     - name: run-vcpkg  
       uses: lukka/run-vcpkg@v11.5
       with:
+        vcpkgJsonGlob: './vcpkg.json'
         vcpkgGitCommitId: 352c108a6b6d698c09a8272d8e95fdce550ae408  
       
     - name: Configure CMake
@@ -81,4 +82,3 @@ jobs:
           name: binaries-windows
           path: ${{github.workspace}}/bin/
   
-
