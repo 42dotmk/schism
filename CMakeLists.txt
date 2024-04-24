@@ -116,6 +116,14 @@ target_include_directories(${PROJECT_NAME} PRIVATE ${PARALLEL_HASHMAP_INCLUDE_DI
 
 set(OUTPUT_DIR ${CMAKE_SOURCE_DIR}/bin/)
 
+if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
+    message("GCC DIAGNOSTIC COLR ")
+   add_compile_options (-fdiagnostics-color=always)
+elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
+    message("COLR")
+   add_compile_options (-fcolor-diagnostics)
+endif ()
+
 set_target_properties(${PROJECT_NAME} PROPERTIES
     RUNTIME_OUTPUT_DIRECTORY ${OUTPUT_DIR}
     LIBRART_OUTPUT_DIRECTORY ${OUTPUT_DIR}
