@@ -29,7 +29,6 @@ void SampleScene::OnAttach()
 	m_Renderer.RegisterShader(m_Ctx->GlobalAssets.Shaders.GetHandle("spriterenderer"));
 	m_Registry.emplace<Components::Sprite>(m_Ship1, m_Ctx->GlobalAssets.Textures.GetHandle("ship1sprite"));
 	auto& transfrom = m_Registry.emplace<Components::Transform2D>(m_Ship1);
-
 	transfrom.position = { 200.f, 200.f, 0.f };
 	transfrom.scale = { 200.f, 200.f };
 }
@@ -61,6 +60,7 @@ void SampleScene::OnUpdate(Timestep ts)
 
 void EditTransform(const Renderer::OrthographicCamera& camera, const glm::mat4& matrix, Components::Transform2D& transform)
 {
+    #pragma region ImGuizmo
     static ImGuizmo::OPERATION mCurrentGizmoOperation(ImGuizmo::ROTATE);
     static ImGuizmo::MODE mCurrentGizmoMode(ImGuizmo::WORLD);
     if (ImGui::IsKeyPressed(ImGuiKey_W))
@@ -77,20 +77,9 @@ void EditTransform(const Renderer::OrthographicCamera& camera, const glm::mat4& 
     ImGui::SameLine();
     if (ImGui::RadioButton("Scale", mCurrentGizmoOperation == ImGuizmo::SCALE))
         mCurrentGizmoOperation = ImGuizmo::SCALE;
+    #pragma endregion
+    
     float matrixTranslation[3], matrixRotation[3], matrixScale[3];
-
-    ImGuizmo::DecomposeMatrixToComponents(glm::value_ptr(matrix), matrixTranslation , matrixRotation, matrixScale);
-    ImGui::InputFloat3("Tr", matrixTranslation);
-    ImGui::InputFloat3("Rt", matrixRotation);
-    ImGui::InputFloat3("Sc", matrixScale);
-    transform.position.x = matrixTranslation[0];
-    transform.position.y = matrixTranslation[1];
-    transform.position.z = matrixTranslation[2];
-
-    transform.scale.x = matrixScale[0] * 200;
-    transform.scale.y = matrixScale[1] * 200;
-
-    ImGuizmo::RecomposeMatrixFromComponents(matrixTranslation, matrixRotation, matrixScale, (float*) glm::value_ptr(matrix) );
 
     if (mCurrentGizmoOperation != ImGuizmo::SCALE)
     {
@@ -100,6 +89,7 @@ void EditTransform(const Renderer::OrthographicCamera& camera, const glm::mat4& 
         if (ImGui::RadioButton("World", mCurrentGizmoMode == ImGuizmo::WORLD))
             mCurrentGizmoMode = ImGuizmo::WORLD;
     }
+
     static bool useSnap(false);
     if (ImGui::IsKeyPressed(ImGuiKey_S))
         useSnap = !useSnap;
@@ -107,6 +97,7 @@ void EditTransform(const Renderer::OrthographicCamera& camera, const glm::mat4& 
     ImGui::SameLine();
     ImGuiIO& io = ImGui::GetIO();
     ImGuizmo::SetRect(0, 0, io.DisplaySize.x, io.DisplaySize.y);
+
     auto view = glm::value_ptr(camera.GetViewMatrix());
     auto projection = glm::value_ptr(camera.GetProjectionMatrix());
     ImGuizmo::Manipulate(view, projection, mCurrentGizmoOperation, mCurrentGizmoMode, (float*) glm::value_ptr(matrix), NULL, NULL);
@@ -115,13 +106,17 @@ void EditTransform(const Renderer::OrthographicCamera& camera, const glm::mat4& 
     ImGui::InputFloat3("Tr", matrixTranslation);
     ImGui::InputFloat3("Rt", matrixRotation);
     ImGui::InputFloat3("Sc", matrixScale);
+
     transform.position.x = matrixTranslation[0];
     transform.position.y = matrixTranslation[1];
     transform.position.z = matrixTranslation[2];
+    
+    transform.rotation = matrixRotation[2];
 
-    transform.scale.x = matrixScale[0] * 200;
-    transform.scale.y = matrixScale[1] * 200;
+    transform.scale.x = matrixScale[0];
+    transform.scale.y = matrixScale[1];
 }
+
 void SampleScene::OnDraw()
 {
 	auto view = m_Registry.view<Components::Transform2D, Components::Sprite>();
@@ -131,7 +126,10 @@ void SampleScene::OnDraw()
 	for (auto e : view)
 	{
 		const auto& [transfrom, sprite] = m_Registry.get<Components::Transform2D, Components::Sprite>(e);
-        const glm::mat4 mat = glm::translate(glm::mat4(1.f), transfrom.position);
+        glm::mat4 mat = glm::translate(glm::mat4(1.f), transfrom.position);
+		mat = glm::rotate(mat, glm::radians(transfrom.rotation), glm::vec3(0.f, 0.f, 1.f));
+        mat = glm::scale(mat, glm::vec3(transfrom.scale, 1.f));
+
         ImGuizmo::SetID(i);
 
         // ImGuizmo::DrawCubes(glm::value_ptr(m_Camera.GetViewMatrix()), glm::value_ptr(m_Camera.GetProjectionMatrix()), glm::value_ptr(mat), 1);

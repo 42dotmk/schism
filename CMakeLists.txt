@@ -20,7 +20,10 @@ find_package(EnTT CONFIG REQUIRED)
 find_package(glad CONFIG REQUIRED)
 find_package(glm CONFIG REQUIRED)
 find_package(imgui CONFIG REQUIRED)
-find_package(imguizmo CONFIG REQUIRED)
+
+# this is commented out because there is a bug in imguizmo version 1.83
+# using it as a submodule
+# find_package(imguizmo CONFIG REQUIRED)
 find_package(OpenAL CONFIG REQUIRED)
 find_package(spdlog CONFIG REQUIRED)
 find_package(asio CONFIG REQUIRED)
@@ -66,11 +69,14 @@ include_directories(
                     vendor/phmap/parallel_hashmap/
                     vendor/atomic_queue/include/
                     vendor/cppack/include/
+                    vendor/imguizmo/
                     ${Stb_INCLUDE_DIR}
                     ${LUA_INCLUDE_DIR}
-                    src/)
+                    src/
+)
 
 
+file(GLOB GUIZMO_SOURCES vendor/imguizmo/*.cpp)
 file(GLOB_RECURSE SOURCES src/*.cpp)
 file(GLOB_RECURSE HEADERS src/*.h)
 file(GLOB_RECURSE RESOURCES res/*)
@@ -89,6 +95,7 @@ add_definitions(-DGLFW_INCLUDE_NONE
 
 add_executable(${PROJECT_NAME}
                     ${SOURCES}
+                    ${GUIZMO_SOURCES}
                     ${PROJECT_CONFIGS})
 
 target_link_libraries(${PROJECT_NAME} PRIVATE
@@ -98,7 +105,7 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
     glfw
     glm::glm
     imgui::imgui
-    imguizmo::imguizmo
+    # imguizmo::imguizmo
     OpenAL::OpenAL
     spdlog::spdlog
     sol2
@@ -108,6 +115,14 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
 target_include_directories(${PROJECT_NAME} PRIVATE ${PARALLEL_HASHMAP_INCLUDE_DIRS})
 
 set(OUTPUT_DIR ${CMAKE_SOURCE_DIR}/bin/)
+
+if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
+    message("GCC DIAGNOSTIC COLR ")
+   add_compile_options (-fdiagnostics-color=always)
+elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
+    message("COLR")
+   add_compile_options (-fcolor-diagnostics)
+endif ()
 
 set_target_properties(${PROJECT_NAME} PROPERTIES
     RUNTIME_OUTPUT_DIRECTORY ${OUTPUT_DIR}

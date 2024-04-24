@@ -8,11 +8,7 @@ on:
   pull_request:
     branches: [ "master" ]
   workflow_dispatch:
-    inputs:
-      name:
-        # added cuz i don't know how to make it without any arguments
-        description: "Who to greet"
-        default: "World"
+
 env:
   # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
   BUILD_TYPE: Release
@@ -36,21 +32,19 @@ jobs:
         submodules: 'true'
         
     - name: run-vcpkg  
-      uses: lukka/run-vcpkg@v11.4
-      
+      uses: lukka/run-vcpkg@v11.5
+      with:
+        vcpkgJsonIgnores: '["**/vcpkg/**", "**/vendor/**"]'
+
     - name: Configure CMake
-      # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as make.
-      # See https://cmake.org/cmake/help/latest/variable/CMAKE_BUILD_TYPE.html?highlight=cmake_build_type
       run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
 
     - name: Build
-      # Build your program with the given configuration
       run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}}
 
     - name: Test
       working-directory: ${{github.workspace}}/build
-      # Execute tests defined by the CMake configuration.
-      # See https://cmake.org/cmake/help/latest/manual/ctest.1.html for more detail
+      # not used as of right now, but will be used in the future
       run: ctest -C ${{env.BUILD_TYPE}}
 
     - name: Archive binaries
@@ -69,21 +63,18 @@ jobs:
           submodules: 'true'
           
       - name: run-vcpkg  
-        uses: lukka/run-vcpkg@v11.4
+        uses: lukka/run-vcpkg@v11.5
+        with:
+          vcpkgJsonIgnores: '["**/vcpkg/**", "**/vendor/**"]'
   
       - name: Configure CMake
-        # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as make.
-        # See https://cmake.org/cmake/help/latest/variable/CMAKE_BUILD_TYPE.html?highlight=cmake_build_type
         run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
   
       - name: Build
-        # Build your program with the given configuration
         run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}}
   
       - name: Test
         working-directory: ${{github.workspace}}/build
-        # Execute tests defined by the CMake configuration.
-        # See https://cmake.org/cmake/help/latest/manual/ctest.1.html for more detail
         run: ctest -C ${{env.BUILD_TYPE}}
 
       - name: Archive binaries
@@ -92,4 +83,3 @@ jobs:
           name: binaries-windows
           path: ${{github.workspace}}/bin/
   
-

@@ -1,6 +1,6 @@
 {
     "name": "schism",
-    "builtin-baseline": "c3801cf53c614ffc54c94051d124eba097b057b1",
+    "builtin-baseline": "352c108a6b6d698c09a8272d8e95fdce550ae408",
     "dependencies" : [
         "glfw3",
         "openal-soft",
@@ -18,7 +18,6 @@
                 "glfw-binding"
             ]
         },
-        "imguizmo",
         "sol2",
         "lua"
     ]
