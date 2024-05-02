@@ -1,4 +1,4 @@
-#include "schism/Interfaces/IScene.h"
+#include "schism/Game/SceneBase.h"
 #include "schism/Renderer/OrthographicCamera.h"
 #include "schism/Core/Assets.h"
 #include "BoardRenderer.h"
@@ -13,7 +13,7 @@ using namespace Schism;
 
 namespace Chess
 {
-	class Chess : public IScene
+	class Chess : public SceneBase
 	{
 	public:
 		Chess(Core::SharedContextRef ctx, const std::string& name);

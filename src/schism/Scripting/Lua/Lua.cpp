@@ -1,6 +1,6 @@
 #include "Lua.h"
 
-#include "Bindings/Glm.hpp"
+#include "Bindings/Glm.h"
 
 namespace Schism::Scripting::Lua
 {
@@ -9,6 +9,6 @@ namespace Schism::Scripting::Lua
         m_lua.open_libraries(sol::lib::base, sol::lib::math, sol::lib::table);
 
         GlmBindings glm;
-        RegisterBinding(glm);
+        RegisterBinding<GlmBindings>();
     }
 }

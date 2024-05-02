@@ -1,10 +1,10 @@
-#include "schism/Interfaces/IScene.h"
+#include "schism/Game/SceneBase.h"
 #include "schism/Renderer/OrthographicCamera.h"
 #include "schism/Renderer/SpriteRenderer.h"
 
 using namespace Schism;
 
-class SampleScene: public IScene
+class SampleScene: public SceneBase
 {
 public:
 	SampleScene(Core::SharedContextRef ctx, const std::string& name);

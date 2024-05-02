@@ -9,16 +9,30 @@
 #include "imgui_stdlib.h"
 #include "ImGuizmo.h"
 #include "schism/Renderer/OrthographicCamera.h"
+#include "schism/Scripting/Lua/Bindings/Game/Ecs/Bundle.h"
+#include "schism/Scripting/Lua/Bindings/Game/Ecs/Plugin.h"
+#include "schism/Scripting/Lua/Lua.h"
+#include "schism/System/Log.h"
 #include <glm/gtc/type_ptr.hpp>
 
 using namespace Schism;
 
 SampleScene::SampleScene(Core::SharedContextRef ctx, const std::string& name)
 	:
-	IScene(ctx, name),
+	SceneBase(ctx,name),
 	m_Camera(0, m_Ctx->window->GetWidth(), m_Ctx->window->GetHeight(), 0)
 {
 	m_Ship1 = m_Registry.create();
+
+
+    Scripting::Lua::LuaState state;
+
+    state.RegisterBinding<Scripting::Lua::Bundle>(m_Registry);
+    state.RegisterBinding<Components::Transform2D>();
+    state.RegisterBinding<Scripting::Lua::Plugin>();
+
+    SC_CORE_WARN("STARTING");
+    state.LoadScriptFile("res/scripts/test.lua");
 }
 
 SampleScene::~SampleScene() = default;

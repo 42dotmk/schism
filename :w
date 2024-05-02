@@ -1,0 +1,78 @@
+#pragma once
+
+#include "schism/System/Log.h"
+#include <sol/make_reference.hpp>
+#include <sol/raii.hpp>
+#include <sol/sol.hpp>
+#include <entt/entt.hpp>
+#include <sol/types.hpp>
+
+namespace Schism::Scripting::Lua
+{
+    class Bundle
+    {
+    public:
+        Bundle(entt::registry* registry, const sol::variadic_args &va, sol::this_state s)
+        {
+            sol::table rtn;
+
+            SC_CORE_WARN("Called constructor {}", va.size());
+            for (auto&& obj : va)
+            {
+                std::string typeName = sol::type_name(s, obj.get_type());
+                
+                SC_CORE_WARN("ASd");
+                // self["asdf"] = []() { return 1; };
+                SC_CORE_WARN("TYPENAME {}", typeName);
+            }
+        };
+
+
+        Bundle()
+        {
+
+        }
+
+    public:
+        static void Bind(sol::state& state, entt::registry& registry)
+        {
+            SC_CORE_INFO("BUNDELED");
+            state.new_usertype<Bundle>("Bundle",
+                sol::call_constructor,
+                sol::factories(
+                    [](const sol::variadic_args &va)
+                    {
+                        SC_CORE_WARN("CALLED WITH OUT SELF {}", va.size());
+                        return std::make_shared<Bundle>();
+                    },
+                    // [](sol::object o, const sol::variadic_args& va)
+                    // {
+                    //     SC_CORE_WARN("CALLED WITH SELF {}", va.size());
+                    //     return std::make_shared<Bundle>();
+                    // })
+                // sol::meta_function::construct,
+                // sol::factories(
+                //     [](const sol::variadic_args &va)
+                //     {
+                //         SC_CORE_WARN("CALLED WITH OUT SELF {}", va.size());
+                //         return std::make_shared<Bundle>();
+                //     },
+                //     [](sol::object o, const sol::variadic_args& va)
+                //     {
+                //         SC_CORE_WARN("CALLED WITH SELF {}", va.size());
+                //         return std::make_shared<Bundle>();
+                //     }
+                //
+                    // [&registry](sol::object o, sol::this_state s , const sol::variadic_args &va)
+                    // {
+                    //     return std::make_shared<Bundle>(&registry, va, s);
+                    //     // return CreateTable(o, nullptr, va, s);
+                    // }
+                    );
+        }
+
+    private:
+        sol::table m_self;
+        entt::registry* m_registry;
+    };
+}

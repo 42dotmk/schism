@@ -9,17 +9,17 @@
 
 namespace Schism::Scripting::Lua
 {
-    class GlmBindings: public Binding 
+    class GlmBindings
     {
     public:
-        void Bind(sol::state& lua) override
+        static void Bind(sol::state& lua) 
         {
             registerVec2(lua);
             registerVec3(lua);
             registerVec4(lua);
         }
     private:
-        void registerVec2(sol::state& lua) 
+        static void registerVec2(sol::state& lua) 
         {
             auto addition = sol::overload(
                     [](const glm::vec2& vec, const glm::vec2& vec2) { return vec + vec2; },
@@ -58,7 +58,7 @@ namespace Schism::Scripting::Lua
                     );
         }
 
-        void registerVec3(sol::state& lua)
+        static void registerVec3(sol::state& lua)
         {
             auto addition = sol::overload(
                     [](const glm::vec3& vec, const glm::vec3& vec2) { return vec + vec2; },
@@ -98,7 +98,7 @@ namespace Schism::Scripting::Lua
                     );
         }
 
-        void registerVec4(sol::state& lua)
+        static void registerVec4(sol::state& lua)
         {
             auto addition = sol::overload(
                     [](const glm::vec4& vec, const glm::vec4& vec2) { return vec + vec2; },

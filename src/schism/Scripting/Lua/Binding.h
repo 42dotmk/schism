@@ -1,13 +1,13 @@
 #pragma once
+
 #include <sol/sol.hpp>
+#include <sol/state.hpp>
 
 namespace Schism::Scripting::Lua
 {
-    class Binding
+    template<typename T>
+    concept LuaBindable = requires(T t, sol::state& state)
     {
-    public:
-        Binding() = default;
-        ~Binding() = default;
-        virtual void Bind(sol::state& lua) = 0;
+        { T::Bind(state) };
     };
 }

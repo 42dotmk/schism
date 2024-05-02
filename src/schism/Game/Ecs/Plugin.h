@@ -1,6 +1,7 @@
 #pragma once
 
 #include "detail/PluginBase.h"
+#include <sol/state.hpp>
 
 namespace Schism::Ecs
 {
@@ -10,9 +11,17 @@ namespace Schism::Ecs
     class Plugin: public detail::PluginBase
     {
     public:
+        friend IScene;
+
         Plugin();
-        
+
+        static void Bind(sol::state& state)
+        {
+
+        }
+
     protected:
+
         void AddSystem()
         {
 

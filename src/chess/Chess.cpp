@@ -15,7 +15,7 @@ namespace Chess
 {
 	Chess::Chess(Core::SharedContextRef ctx, const std::string& name)
 		:
-		IScene(std::move(ctx), name),
+		SceneBase(std::move(ctx), name),
 		m_Camera(0, m_Ctx->window->GetWidth(), m_Ctx->window->GetHeight(), 0)
 	{
 		BoardRenderer::Resources sprites;

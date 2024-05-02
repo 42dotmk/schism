@@ -4,7 +4,7 @@
 
 #include "Timestep.h"
 #include "Events/Event.h"
-#include "schism/Interfaces/IScene.h"
+#include "schism/Game/SceneBase.h"
 #include "schism/System/System.h"
 
 namespace Schism::Core
@@ -17,7 +17,7 @@ namespace Schism::Core
 
 		void InitContext(SharedContextRef ctx);
 		
-		template<typename T, typename = std::enable_if_t<std::is_base_of_v<IScene, T>>>
+		template<typename T, typename = std::enable_if_t<std::is_base_of_v<SceneBase, T>>>
 		void Register(const std::string& name)
 		{
 			if (auto i = m_Scenes.find(name); i != m_Scenes.end())
@@ -26,7 +26,7 @@ namespace Schism::Core
 				return;
 			}
 			
-			Ref<IScene> Scene = MakeRef<T>(m_Ctx, name);
+			Ref<SceneBase> Scene = MakeRef<T>(m_Ctx, name);
 			Scene->OnAttach();
 			m_Scenes[name] = Scene;
 
@@ -45,10 +45,10 @@ namespace Schism::Core
 		void OnDraw() const;
 		void OnSystemEvent(Event& e) const;
 
-		Ref<IScene> GetActiveScene() const { return m_ActiveScene; }
+		Ref<SceneBase> GetActiveScene() const { return m_ActiveScene; }
 	private:
 		SharedContextRef m_Ctx;
-		Ref<IScene> m_ActiveScene { nullptr };
-		phmap::node_hash_map<std::string, Ref<IScene>> m_Scenes;
+		Ref<SceneBase> m_ActiveScene { nullptr };
+		phmap::node_hash_map<std::string, Ref<SceneBase>> m_Scenes;
 	};
 }
