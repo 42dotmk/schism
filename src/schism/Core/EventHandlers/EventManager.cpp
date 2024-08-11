@@ -17,7 +17,7 @@ namespace Schism::Core
     {
         const auto cat= static_cast<std::size_t>(e.GetCategory());
 
-        const auto handler= m_Handlers[cat];
+        const auto& handler= m_Handlers[cat];
 
         bool wasHandled = false;
 

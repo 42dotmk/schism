@@ -3,6 +3,8 @@
 #include "schism/Core/EventHandlers/EventAdapterBase.h"
 #include "schism/Core/Events/MouseEvents.h"
 
+#include <array>
+
 namespace Schism::Core
 {
     class MouseEventHandler: public EventAdapterBase

@@ -4,6 +4,8 @@
 #include "schism/Core/EventHandlers/EventAdapterBase.h"
 #include "schism/System/Ptr.h"
 
+#include <array>
+
 namespace Schism::Core
 {
     class Window;

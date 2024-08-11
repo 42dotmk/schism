@@ -4,6 +4,8 @@
 
 #include "schism/Core/Events/KeyEvents.h"
 
+#include <array>
+
 namespace Schism::Core
 {
 
