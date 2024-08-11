@@ -1,5 +1,8 @@
 #pragma once
-#include "WindowData.h"
+
+#include "schism/Core/EventHandlers/EventAdapterBase.h"
+#include "schism/System/Ptr.h"
+
 #include "GLFW/glfw3.h"
 
 namespace Schism::Core
@@ -16,8 +19,7 @@ namespace Schism::Core
 		void Swap() const;
 		void Create(int w, int h, const char* name);
 		void ProcessEvents();
-		void SetEventCallback(EventCallback callback);
-
+        void AttachEventAdapter(Ref<EventAdapterBase> eventManager);
 
 		// Temporary, shouldn't expose glfw window
 		GLFWwindow* GetNativeWindow() const { return m_WindowPtr; }
@@ -30,6 +32,14 @@ namespace Schism::Core
 		
 		GLFWwindow* m_WindowPtr;
 		GLFWwindow* m_LoadWinPtr;
-		WindowData m_Data;
+
+		struct WindowData {
+            // don't know if this will be needed
+            int Width;
+            int Height;
+
+            // this is definatelly needed
+            Ref<EventAdapterBase> eventAdapter;
+        } m_Data;
 	};
 }

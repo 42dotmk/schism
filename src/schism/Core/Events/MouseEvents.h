@@ -9,8 +9,9 @@ namespace Schism
 	class MouseEvent : public Event
 	{
 	public:
-		SC_EVENT(Type)
-			MouseEvent(float x, float y)
+		SC_EVENT(Type, EventCategory::Mouse)
+
+		MouseEvent(float x, float y)
 			:
 			m_Pos(x, y)
 		{}

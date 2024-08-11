@@ -19,6 +19,12 @@
             ]
         },
         "sol2",
-        "lua"
+        "lua",
+        {
+            "name": "bgfx",
+            "features": [
+                "multithreaded"
+            ]
+        }
     ]
 }

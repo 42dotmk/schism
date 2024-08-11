@@ -5,6 +5,10 @@
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
 #include "GLFW/glfw3.h"
+#include "schism/Core/EventHandlers/EventManager.h"
+#include "schism/Core/EventHandlers/MouseEventHandler.h"
+#include "schism/Core/EventHandlers/KeyboardEventHandler.h"
+#include "schism/Core/Events/Event.h"
 #include "schism/Renderer/RenderAPI.h"
 #include "schism/System/Log.h"
 #include "schism/System/System.h"
@@ -12,6 +16,8 @@
 #include "schism/Renderer/Renderer2D.h"
 #include "AL/al.h"
 #include "AL/alc.h"
+
+#include <bgfx/bgfx.h>
 
 namespace Schism
 {
@@ -25,13 +31,12 @@ namespace Schism
 		Ref<Core::Window> Window = MakeRef<Core::Window>();
 		
 		Window->Create(w, h, name);
-    
-		Window->SetEventCallback([this](Event&& e)
-			{
-				OnEvent(e);
-			});
-		m_Ctx = CreateSharedContext(Window);
+        
+        SetupEventHandlers();
 
+        Window->AttachEventAdapter(m_EventManager);
+
+		m_Ctx = CreateSharedContext(Window);
     
 		m_Ctx->SceneManager.Switch = [this](const std::string& name)
 			{
@@ -91,7 +96,7 @@ namespace Schism
 		
 		m_SceneManager.OnSystemEvent(e);
 	}
-	
+
 	void Application::Run()
 	{
 		// Boilerplate code
@@ -129,4 +134,21 @@ namespace Schism
 		exit(0);
 	}
 
+    void Application::SetupEventHandlers()
+    {
+        auto eventManager = MakeRef<Core::EventManager>();
+
+        auto keyboardEventHandler = MakeRef<Core::KeyboardEventHandler>();
+        auto mouseEventHandler = MakeRef<Core::MouseEventHandler>();
+
+        eventManager->AttachAdapter(EventCategory::Mouse, mouseEventHandler);
+        eventManager->AttachAdapter(EventCategory::Keyboard, keyboardEventHandler);
+
+        m_EventManager = eventManager;
+
+        m_EventManager->Listener.connect([this](Event&& e)
+                {
+                    OnEvent(e);
+                });
+    }
 }

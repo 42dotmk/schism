@@ -8,8 +8,8 @@ namespace Schism
 	class KeyEvent : public Event
 	{
 	public:
-		SC_EVENT(Type)
-			KeyEvent(Keyboard::Key key) : m_Key(key) {}
+		SC_EVENT(Type, EventCategory::Keyboard)
+	    KeyEvent(Keyboard::Key key) : m_Key(key) {}
 		Keyboard::Key GetKey() const { return m_Key; }
 	private:
 		Keyboard::Key m_Key;

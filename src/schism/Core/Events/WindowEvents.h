@@ -8,8 +8,8 @@ namespace Schism
 	class WindowEvent : public Event
 	{
 	public:
-		SC_EVENT(Type)
-			WindowEvent() = default;
+		SC_EVENT(Type, EventCategory::Window)
+		WindowEvent() = default;
 	};
 
 	class WindowResizeEvent : public WindowEvent<EventType::WindowResize>
