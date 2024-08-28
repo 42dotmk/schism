@@ -1,12 +1,10 @@
 #pragma once
 #include "msgpack/msgpack.hpp"
 
-namespace Chess
-{
-    struct ResetGame{};
+namespace Chess {
+struct ResetGame {};
 
-    struct StartGame
-    {
-        bool IsWhite{ true };
-    };
-}
+struct StartGame {
+        bool IsWhite{true};
+};
+}  // namespace Chess

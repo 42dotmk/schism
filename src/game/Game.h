@@ -2,9 +2,8 @@
 
 #include "schism/Schism.h"
 
-class Game : public Schism::Application
-{
-public:
-	Game();
-	~Game();
+class Game : public Schism::Application {
+    public:
+        Game();
+        ~Game();
 };

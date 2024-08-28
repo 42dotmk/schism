@@ -3,13 +3,11 @@
 #include "schism/Core/Events/Event.h"
 #include "schism/Util/SingleSignal.h"
 
-namespace Schism::Core
-{
-    class EventManager;
-    class Window;
+namespace Schism::Core {
+class EventManager;
+class Window;
 
-    class EventAdapterBase
-    {
+class EventAdapterBase {
     public:
         virtual ~EventAdapterBase() = default;
 
@@ -20,6 +18,6 @@ namespace Schism::Core
 
         friend Window;
         friend EventManager;
-    };
+};
 
-}
+}  // namespace Schism::Core

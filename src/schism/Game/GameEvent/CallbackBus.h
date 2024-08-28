@@ -4,41 +4,31 @@
 #include <vector>
 #include "CallbackListener.h"
 
-namespace Schism::GameEvent
-{
-    class CallbackBus
-    {
+namespace Schism::GameEvent {
+class CallbackBus {
     public:
-        template<typename T>
-        void PostEvent(T&& e)
-        {
-            for (auto& listener : m_Listeners)
-            {
+        template <typename T>
+        void PostEvent(T&& e) {
+            for (auto& listener : m_Listeners) {
                 auto listenerShared = listener.lock();
-                if (!listenerShared)
-                {
+                if (!listenerShared) {
                     continue;
                 }
-                if (!listenerShared->GameEventRegistered<T>())
-                {
+                if (!listenerShared->GameEventRegistered<T>()) {
                     continue;
                 }
                 listenerShared->ProduceGameEvent(std::forward<T>(e));
             }
         }
 
-        template<typename T>
-        void PostEvent(const T& e)
-        {
-            for (auto& listener : m_Listeners)
-            {
+        template <typename T>
+        void PostEvent(const T& e) {
+            for (auto& listener : m_Listeners) {
                 auto listenerShared = listener.lock();
-                if (!listenerShared)
-                {
+                if (!listenerShared) {
                     continue;
                 }
-                if (!listenerShared->GameEventRegistered<T>())
-                {
+                if (!listenerShared->GameEventRegistered<T>()) {
                     continue;
                 }
 
@@ -46,19 +36,21 @@ namespace Schism::GameEvent
             }
         }
 
-        template<typename T>
-        void AttachListener(const std::shared_ptr<T>& listener)
-        {
-            static_assert(std::is_base_of_v<CallbackListener, T>, "(CallbackBus, AttachListener) T is not of base CallbackListener type");
+        template <typename T>
+        void AttachListener(const std::shared_ptr<T>& listener) {
+            static_assert(std::is_base_of_v<CallbackListener, T>,
+                          "(CallbackBus, AttachListener) T is not of base "
+                          "CallbackListener type");
 
-            m_Listeners.emplace_back(std::dynamic_pointer_cast<CallbackListener>(listener));
+            m_Listeners.emplace_back(
+                std::dynamic_pointer_cast<CallbackListener>(listener));
         }
 
-        void AttachListener(const std::shared_ptr<CallbackListener>& listener)
-        {
+        void AttachListener(const std::shared_ptr<CallbackListener>& listener) {
             m_Listeners.emplace_back(listener);
         }
+
     private:
         std::vector<std::weak_ptr<CallbackListener>> m_Listeners;
-    };
-}
+};
+}  // namespace Schism::GameEvent

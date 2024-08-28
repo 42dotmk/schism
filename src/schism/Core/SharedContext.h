@@ -1,32 +1,28 @@
 #pragma once
 
+#include "Assets.h"
 #include "Window.h"
 #include "schism/System/Ptr.h"
-#include "Assets.h"
 
-namespace Schism::Core
-{
-	struct SceneManagerCallbacks
-	{
-		std::function<void(const std::string&)> Switch{ nullptr };
-		std::function<void(const std::string&)> Destroy{ nullptr };
-	};
-	
-	struct SharedContext
-	{
-		Ref<Window> window;
-		Assets GlobalAssets;
-		SceneManagerCallbacks SceneManager;
-	};
+namespace Schism::Core {
+struct SceneManagerCallbacks {
+        std::function<void(const std::string&)> Switch{nullptr};
+        std::function<void(const std::string&)> Destroy{nullptr};
+};
 
-	using SharedContextRef = Ref<SharedContext>;
+struct SharedContext {
+        Ref<Window> window;
+        Assets GlobalAssets;
+        SceneManagerCallbacks SceneManager;
+};
 
-	static const SharedContextRef CreateSharedContext(Ref<Window> window)
-	{
-		Ref<SharedContext> Ctx = MakeRef<SharedContext>();
+using SharedContextRef = Ref<SharedContext>;
 
-		Ctx->window = window;
-		return Ctx;
-	}
-	
+static const SharedContextRef CreateSharedContext(Ref<Window> window) {
+    Ref<SharedContext> Ctx = MakeRef<SharedContext>();
+
+    Ctx->window = window;
+    return Ctx;
 }
+
+}  // namespace Schism::Core
