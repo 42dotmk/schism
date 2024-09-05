@@ -2,33 +2,27 @@
 
 #include "Event.h"
 
-namespace Schism
-{
-	template<EventType Type>
-	class WindowEvent : public Event
-	{
-	public:
-		SC_EVENT(Type)
-			WindowEvent() = default;
-	};
+namespace Schism {
+template <EventType Type>
+class WindowEvent : public Event {
+    public:
+        SC_EVENT(Type, EventCategory::Window)
+        WindowEvent() = default;
+};
 
-	class WindowResizeEvent : public WindowEvent<EventType::WindowResize>
-	{
-	public:
-		WindowResizeEvent(int w, int h)
-			:
-			m_Width(w),
-			m_Height(h)
-		{}
+class WindowResizeEvent : public WindowEvent<EventType::WindowResize> {
+    public:
+        WindowResizeEvent(int w, int h) : m_Width(w), m_Height(h) {}
 
-		int GetWidth() const { return m_Width; }
-		int GetHeight() const { return m_Height; }
-	private:
-		int m_Width;
-		int m_Height;
-	};
+        int GetWidth() const { return m_Width; }
 
-	using WindowCloseEvent = WindowEvent<EventType::WindowClose>;
-	using WindowFocusEvent = WindowEvent<EventType::WindowFocus>;
-}
+        int GetHeight() const { return m_Height; }
 
+    private:
+        int m_Width;
+        int m_Height;
+};
+
+using WindowCloseEvent = WindowEvent<EventType::WindowClose>;
+using WindowFocusEvent = WindowEvent<EventType::WindowFocus>;
+}  // namespace Schism

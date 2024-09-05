@@ -20,6 +20,7 @@ find_package(EnTT CONFIG REQUIRED)
 find_package(glad CONFIG REQUIRED)
 find_package(glm CONFIG REQUIRED)
 find_package(imgui CONFIG REQUIRED)
+find_package(bgfx CONFIG REQUIRED)
 
 # this is commented out because there is a bug in imguizmo version 1.83
 # using it as a submodule
@@ -110,6 +111,10 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
     spdlog::spdlog
     sol2
     ${LUA_LIBRARIES}
+    bgfx::bx
+    bgfx::bgfx
+    bgfx::bimg
+    bgfx::bimg_decode
 )
 
 target_include_directories(${PROJECT_NAME} PRIVATE ${PARALLEL_HASHMAP_INCLUDE_DIRS})
