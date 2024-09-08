@@ -166,6 +166,7 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
     glfw
     glm::glm
     imgui::imgui
+    # this is becase the port on vcpkg has a bug so we use a submodule to get it 
     # imguizmo::imguizmo
     OpenAL::OpenAL
     spdlog::spdlog

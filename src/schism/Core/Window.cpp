@@ -1,13 +1,15 @@
 #include "Window.h"
 #include <GLFW/glfw3.h>
 #include <GLFW/glfw3native.h>
+
+#if defined(SCHISM_LINUX_WAYLAND)
 #include <wayland-egl.h>
+#endif
 
 #include "Events/KeyEvents.h"
 #include "Events/Keyboard.h"
 #include "Events/MouseEvents.h"
 #include "Events/WindowEvents.h"
-#include "glad/glad.h"
 #include "schism/System/Log.h"
 
 namespace Schism::Core {
