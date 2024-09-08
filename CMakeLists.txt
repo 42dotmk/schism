@@ -112,6 +112,7 @@ if(CMAKE_BUILD_TYPE STREQUAL "Debug")
     elseif(USING_CLANGD)
         add_compile_options(-Weverything)
         add_compile_options(-fcolor-diagnostics)
+        add_compile_options(-msse2)
     endif()
 
     add_compile_definitions(SC_DEBUG)
@@ -119,7 +120,7 @@ else()
     add_compile_definitions(SC_NODEBUG)
 endif()
 
-add_compile_definitions(IMGUI_IMPL_OPENGL_LOADER_GLAD USE_IMGUI_API)
+add_compile_definitions(IMGUI_IMPL_OPENGL_LOADER_GLAD USE_IMGUI_API STB_IMAGE_IMPLEMENTATION)
 
 include_directories(
                     vendor/json/include/
@@ -142,7 +143,7 @@ source_group("Headers" FILES ${HEADERS})
 source_group("Sources" FILES ${SOURCES})
 
 file(GLOB CONFIGS CMakeLists.txt
-                          Readme.m
+                          Readme.md
                          .gitattributes
                          .gitignore
                          .gitmodules)
@@ -183,7 +184,11 @@ target_include_directories(${PROJECT_NAME} PRIVATE ${PARALLEL_HASHMAP_INCLUDE_DI
 # this will have to be moved when we switch to c++ modules and also when
 # we switch to different projects for the runtime and the editor
 # for now leave it like this
-target_precompile_headers(${PROJECT_NAME} PRIVATE "./src/schism/pch.h")
+# if we enable pre compiled headers there is a bug that happens with the definition of _OPTIMIZE
+# spdlog or to be more exact defines _OPTIMIZE there and when stb image calls simd instructions
+# it's selecting the wrong or let's say another function/macro definition that is unable to compiled
+# very fucking interesting!
+# target_precompile_headers(${PROJECT_NAME} PRIVATE "./src/schism/pch.h")
 
 set(OUTPUT_DIR ${CMAKE_SOURCE_DIR}/bin/)
 
