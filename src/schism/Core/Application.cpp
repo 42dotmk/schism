@@ -28,11 +28,12 @@ Application::Application(int w, int h, const char* name) {
 
     Ref<Core::Window> Window = MakeRef<Core::Window>();
 
-    Window->Create(w, h, name);
-
     SetupEventHandlers();
 
-    Window->AttachEventAdapter(m_EventManager);
+    // we have to attach the event adapter before we create the window
+    // in the future possibly pass this into Create(w, h, name)
+    // Multi window can support multiple event propagation schemes
+    Window->Create(w, h, name, m_EventManager);
 
     m_Ctx = CreateSharedContext(Window);
 
@@ -76,7 +77,7 @@ Application::Application(int w, int h, const char* name) {
     (void)io;
 
     ImGui::StyleColorsDark();
-    ImGui_ImplGlfw_InitForOpenGL(Window->GetNativeWindow(), true);
+    ImGui_ImplGlfw_InitForOpenGL(Window->GetGLFWWindow(), true);
     ImGui_ImplOpenGL3_Init("#version 400");
 }
 
@@ -96,7 +97,7 @@ void Application::OnEvent(Event& e) {
 
 void Application::Run() {
     // Boilerplate code
-    auto winPtr = m_Ctx->window->GetNativeWindow();
+    auto winPtr = m_Ctx->window->GetGLFWWindow();
 
     auto StartTime = std::chrono::high_resolution_clock::now();
     auto LastFrameTime = StartTime;

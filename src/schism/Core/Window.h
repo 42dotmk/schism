@@ -1,46 +1,54 @@
 #pragma once
 
 #include "schism/Core/EventHandlers/EventAdapterBase.h"
+#include "schism/Core/WindowData.h"
 #include "schism/System/Ptr.h"
 
 #include "GLFW/glfw3.h"
 
+// This is the main window class, once we start to support wasm, android, this will have to be an interface or something
 namespace Schism::Core {
 class Window {
     public:
+        using NativeHandle = void*;
+        using GLFWwindowHandle = GLFWwindow*;
+
+    public:
         Window();
         virtual ~Window();
+
+        void Create(int w, int h, const char* name,
+                    Ref<EventAdapterBase> eventAdapter);
+
+        void SwapEventAdapter(Ref<EventAdapterBase> eventAdapter);
+
+        void Resize();
 
         int GetWidth() const { return m_Data.Width; }
 
         int GetHeight() const { return m_Data.Height; }
 
         void Swap() const;
-        void Create(int w, int h, const char* name);
         void ProcessEvents();
-        void AttachEventAdapter(Ref<EventAdapterBase> eventManager);
 
-        // Temporary, shouldn't expose glfw window
-        GLFWwindow* GetNativeWindow() const { return m_WindowPtr; }
+        // Temporary, shouldn't expose glfw window, or maybe it should, idk
+        GLFWwindow* GetGLFWWindow() const { return m_WindowPtr; }
 
-        GLFWwindow* GetLoadingContext() const { return m_LoadWinPtr; }
+        NativeHandle GetNativeHandle() const { return m_nativeHandle; }
 
     private:
+        void SetNativeHandle();
+
+        // Event Handling
         void HookGLFWEventFunctions();
         void HookMouseEvents();
         void HookWindowEvents();
         void HookKeyEvents();
 
-        GLFWwindow* m_WindowPtr;
-        GLFWwindow* m_LoadWinPtr;
+        bool m_created;
+        NativeHandle m_nativeHandle;
+        GLFWwindowHandle m_WindowPtr;
 
-        struct WindowData {
-                // don't know if this will be needed
-                int Width;
-                int Height;
-
-                // this is definatelly needed
-                Ref<EventAdapterBase> eventAdapter;
-        } m_Data;
+        detail::WindowData m_Data;
 };
 }  // namespace Schism::Core

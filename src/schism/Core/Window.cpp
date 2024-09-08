@@ -1,4 +1,7 @@
 #include "Window.h"
+#include <GLFW/glfw3.h>
+#include <GLFW/glfw3native.h>
+#include <wayland-egl.h>
 
 #include "Events/KeyEvents.h"
 #include "Events/Keyboard.h"
@@ -9,56 +12,81 @@
 
 namespace Schism::Core {
 
-Window::Window() : m_WindowPtr(nullptr), m_LoadWinPtr(nullptr), m_Data() {}
+Window::Window() : m_created(false), m_WindowPtr(nullptr), m_Data() {}
 
 Window::~Window() {
-    glfwDestroyWindow(m_LoadWinPtr);
     glfwDestroyWindow(m_WindowPtr);
 }
 
-void Window::Create(int w, int h, const char* name) {
+void Window::Create(int w, int h, const char* name,
+                    Ref<EventAdapterBase> eventAdapter) {
+
+    if (m_created) {
+        SC_CORE_ERROR(
+            "Trying to create a window, while this current window is already "
+            "created");
+        return;
+    }
+
     if (!glfwInit()) {
         SC_CORE_TRACE("Couldn't initialize glfw");
     }
 
-    glfwWindowHint(GLFW_VISIBLE, 0);
-    m_LoadWinPtr = glfwCreateWindow(1, 1, "Loading Context", NULL, NULL);
-
-    if (m_LoadWinPtr == NULL) {
-        SC_CORE_TRACE("Couldn't create loading context!");
-    }
-
     glfwWindowHint(GLFW_VISIBLE, 1);
-    m_WindowPtr = glfwCreateWindow(w, h, name, NULL, m_LoadWinPtr);
+    glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
+
+    m_WindowPtr = glfwCreateWindow(w, h, name, NULL, NULL);
 
     if (m_WindowPtr == NULL) {
         SC_CORE_TRACE("Couldn't create window!");
     }
 
-    glfwMakeContextCurrent(m_WindowPtr);
-
-    if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
-        SC_CORE_TRACE("Couldn't load glad!");
-    }
+    m_Data.Width = w;
+    m_Data.Height = h;
+    m_Data.eventAdapter = eventAdapter;
 
     glfwSetWindowUserPointer(m_WindowPtr, &m_Data);
 
-    m_Data.Width = w;
-    m_Data.Height = h;
-
     HookGLFWEventFunctions();
+    SetNativeHandle();
+
+    // this could possibly be an atomic
+    m_created = true;
 }
 
 void Window::ProcessEvents() {
+    // when we add multi window support this might have to be called once at the
+    // application level
     glfwPollEvents();
-}
-
-void Window::AttachEventAdapter(Ref<EventAdapterBase> eventAdapter) {
-    m_Data.eventAdapter = eventAdapter;
 }
 
 void Window::Swap() const {
     glfwSwapBuffers(m_WindowPtr);
+}
+
+void Window::SetNativeHandle() {
+#if defined(SCHISM_PLATFORM_LINUX)
+
+#if defined(SCHISM_LINUX_WAYLAND)
+
+    struct wl_surface* surface =
+        (struct wl_surface*)glfwGetWaylandWindow(m_WindowPtr);
+
+    SC_ASSERT(surface, "Cannot get native wayland window surface");
+
+    m_nativeHandle = wl_egl_window_create(surface, m_Data.Width, m_Data.Height);
+
+#elif defined(SCHISM_LINUX_X11)
+    m_nativeHandle = (void*)(uintptr_t)glfwGetX11Window(m_WindowPtr);
+#else
+    SC_STATIC_FAIL("Not a support linux window protocol")
+#endif
+
+#elif defined(SCHISM_PLATFORM_WINDOWS)
+    m_nativeHandle = glfwGetWin32Window(m_WindowPtr);
+#elif defined(SCHISM_PLATFORM_MAC)
+    m_nativeHandle = glfwGetCocoaWindow(m_WindowPtr);
+#endif
 }
 
 void Window::HookGLFWEventFunctions() {
@@ -68,11 +96,12 @@ void Window::HookGLFWEventFunctions() {
 }
 
 void Window::HookMouseEvents() {
-    SC_ASSERT(m_Data.eventManager, "There is no attached EventManager");
+    SC_ASSERT(m_Data.eventAdapter, "There is no attached EventManager");
 
     glfwSetScrollCallback(
         m_WindowPtr, [](GLFWwindow* win, double xoffset, double yoffset) {
-            auto data = static_cast<WindowData*>(glfwGetWindowUserPointer(win));
+            auto data =
+                static_cast<detail::WindowData*>(glfwGetWindowUserPointer(win));
             data->eventAdapter->OnEvent(MouseScrollEvent(xoffset, yoffset));
         });
 
@@ -84,7 +113,8 @@ void Window::HookMouseEvents() {
             return;
         }
 
-        auto data = static_cast<WindowData*>(glfwGetWindowUserPointer((win)));
+        auto data =
+            static_cast<detail::WindowData*>(glfwGetWindowUserPointer((win)));
 
         double xpos;
         double ypos;
@@ -104,30 +134,34 @@ void Window::HookMouseEvents() {
 
     glfwSetCursorPosCallback(m_WindowPtr, [](GLFWwindow* win, double xpos,
                                              double ypos) {
-        auto data = static_cast<WindowData*>(glfwGetWindowUserPointer((win)));
+        auto data =
+            static_cast<detail::WindowData*>(glfwGetWindowUserPointer((win)));
         data->eventAdapter->OnEvent(MouseMoveEvent(xpos, ypos));
     });
 }
 
 void Window::HookWindowEvents() {
-    SC_ASSERT(m_Data.eventManager, "There is no attached EventManager");
+    SC_ASSERT(m_Data.eventAdapter, "There is no attached EventManager");
     glfwSetWindowSizeCallback(m_WindowPtr, [](GLFWwindow* win, int width,
                                               int height) {
-        auto data = static_cast<WindowData*>(glfwGetWindowUserPointer((win)));
+        auto data =
+            static_cast<detail::WindowData*>(glfwGetWindowUserPointer((win)));
         data->eventAdapter->OnEvent(WindowResizeEvent(width, height));
     });
 
     glfwSetWindowCloseCallback(m_WindowPtr, [](GLFWwindow* win) {
-        auto data = static_cast<WindowData*>(glfwGetWindowUserPointer((win)));
+        auto data =
+            static_cast<detail::WindowData*>(glfwGetWindowUserPointer((win)));
         data->eventAdapter->OnEvent(WindowCloseEvent());
     });
 }
 
 void Window::HookKeyEvents() {
-    SC_ASSERT(m_Data.eventManager, "There is no attached EventManager");
+    SC_ASSERT(m_Data.eventAdapter, "There is no attached EventManager");
     glfwSetKeyCallback(m_WindowPtr, [](GLFWwindow* win, int key, int scancode,
                                        int action, int mods) {
-        auto data = static_cast<WindowData*>(glfwGetWindowUserPointer((win)));
+        auto data =
+            static_cast<detail::WindowData*>(glfwGetWindowUserPointer((win)));
         if (action == GLFW_PRESS) {
             data->eventAdapter->OnEvent(KeyDownEvent((Keyboard::Key)key));
         } else if (action == GLFW_RELEASE) {

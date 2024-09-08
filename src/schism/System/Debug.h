@@ -22,6 +22,7 @@
     if (!(x)) {                         \
         SC_CORE_CRITICAL(__VA__ARGS__); \
     }
+
 #else
 #define SC_ASSERT(x, ...) \
     {}
@@ -30,3 +31,6 @@
 #define SC_ERR(x, ...) \
     {}
 #endif
+
+#define SC_STATIC_FAIL(str) \
+    { static_assert(false, str); }
