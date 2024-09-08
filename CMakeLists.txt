@@ -49,7 +49,7 @@ elseif (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
         add_compile_definitions(GLFW_EXPOSE_NATIVE_WAYLAND)
         list(APPEND VCPKG_MANIFEST_FEATURES "wayland")
     else()
-        message("Cannot detect display protocol, linux"))
+        message("Cannot detect display protocol, linux")
     endif()
 endif()
 
