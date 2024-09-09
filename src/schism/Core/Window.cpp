@@ -71,18 +71,16 @@ void Window::SetNativeHandle() {
 #if defined(SCHISM_PLATFORM_LINUX)
 
 #if defined(SCHISM_LINUX_WAYLAND)
-
     struct wl_surface* surface =
         (struct wl_surface*)glfwGetWaylandWindow(m_WindowPtr);
 
     SC_ASSERT(surface, "Cannot get native wayland window surface");
 
     m_nativeHandle = wl_egl_window_create(surface, m_Data.Width, m_Data.Height);
-
 #elif defined(SCHISM_LINUX_X11)
     m_nativeHandle = (void*)(uintptr_t)glfwGetX11Window(m_WindowPtr);
 #else
-    SC_STATIC_FAIL("Not a support linux window protocol")
+    SC_STATIC_FAIL("Not a supported window protocol")
 #endif
 
 #elif defined(SCHISM_PLATFORM_WINDOWS)

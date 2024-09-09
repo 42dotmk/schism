@@ -2,11 +2,13 @@
 #include <cstdint>
 
 #include <glm/vec4.hpp>
+#include <bgfx/bgfx.h>
+#include "schism/Core/Window.h"
 
 namespace Schism::Renderer {
 class API {
     public:
-        static void Init();
+        static bool Init(Core::WindowRef window);
         static void Shutdown();
 
         static void SetClearColor(const glm::vec4& color);

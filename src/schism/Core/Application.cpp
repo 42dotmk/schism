@@ -18,6 +18,7 @@
 #include "schism/System/System.h"
 
 #include <bgfx/bgfx.h>
+#include <glm/gtc/constants.hpp>
 
 namespace Schism {
 Application::Application(int w, int h, const char* name) {
@@ -26,7 +27,7 @@ Application::Application(int w, int h, const char* name) {
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 
-    Ref<Core::Window> Window = MakeRef<Core::Window>();
+    Core::WindowRef Window = MakeRef<Core::Window>();
 
     SetupEventHandlers();
 
@@ -46,8 +47,10 @@ Application::Application(int w, int h, const char* name) {
 
     m_SceneManager.InitContext(m_Ctx);
 
-    Renderer::API::Init();
+    SC_CORE_ERROR("Got here before window");
+    Renderer::API::Init(Window);
 
+    SC_CORE_ERROR("Got here after window");
     ALCdevice* aldevice = alcOpenDevice(nullptr);
     ALCcontext* context = alcCreateContext(aldevice, nullptr);
 
@@ -77,8 +80,8 @@ Application::Application(int w, int h, const char* name) {
     (void)io;
 
     ImGui::StyleColorsDark();
-    ImGui_ImplGlfw_InitForOpenGL(Window->GetGLFWWindow(), true);
-    ImGui_ImplOpenGL3_Init("#version 400");
+    /*ImGui_ImplGlfw_InitForOpenGL(Window->GetGLFWWindow(), true);*/
+    /*ImGui_ImplOpenGL3_Init("#version 400");*/
 }
 
 Application::~Application() {
@@ -113,13 +116,15 @@ void Application::Run() {
 
         Renderer::API::Clear();
         m_Ctx->window->ProcessEvents();
-        m_SceneManager.OnUpdate(ts);
+        /*m_SceneManager.OnUpdate(ts);*/
 
         ImGui_ImplOpenGL3_NewFrame();
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
 
-        m_SceneManager.OnDraw();
+        bgfx::dbgTextClear();
+        bgfx::dbgTextPrintf(10, 10, 0x0f, "Testing bgfx");
+        /*m_SceneManager.OnDraw();*/
 
         ImGui::Render();
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());

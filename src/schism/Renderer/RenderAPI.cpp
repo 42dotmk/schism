@@ -2,36 +2,53 @@
 
 #include "glad/glad.h"
 
-#include "Renderer2D.h"
-#include "SpriteRenderer.h"
-#include "schism/System/Log.h"
+#include <bgfx/bgfx.h>
+#include <bgfx/defines.h>
+#include <bgfx/platform.h>
 
 namespace Schism::Renderer {
-void API::Init() {
-    glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-    glEnable(GL_DEPTH_TEST);
+bool API::Init(Core::WindowRef window) {
 
     // Renderer2D::Init();
     // This will be deprecated, stays here to test other parts while the batch renderer gets finished
-    SpriteRenderer::Init();
+
+    bgfx::Init bgfxInit;
+
+#if defined(SCHISM_PLATFORM_WINDOWS) || defined(SCHISM_PLATFORM_LINUX)
+    bgfxInit.type = bgfx::RendererType::Vulkan;
+#elif defined(SCHISM_PLATFORM_MAC)
+    bgfxInit.type = bgfx::RendererType::Metal;
+#else
+    SC_STATIC_FAIL("Currently we are not supporting this platform");
+#endif
+
+    bgfxInit.resolution.width = window->GetWidth();
+    bgfxInit.resolution.height = window->GetHeight();
+
+    bgfxInit.resolution.reset = BGFX_RESET_VSYNC;
+
+    bgfxInit.platformData.nwh = window->GetNativeHandle();
+
+    int k = 1;
+
+    bgfx::renderFrame();
+    if (!bgfx::init(bgfxInit)) {
+        return false;
+    }
+
+    bgfx::setViewClear(0, BGFX_CLEAR_COLOR);
+    bgfx::setViewRect(0, 0, 0, window->GetWidth(), window->GetHeight());
+
+    return true;
 }
 
 void API::Shutdown() {
     // Renderer2D::Shutdown();
-    SpriteRenderer::Shutdown();
 }
 
-void API::SetClearColor(const glm::vec4& color) {
-    glClearColor(color.r, color.g, color.b, color.a);
-}
+void API::SetClearColor(const glm::vec4& color) {}
 
-void API::Clear() {
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-}
+void API::Clear() {}
 
-void API::SetViewport(uint32_t width, uint32_t height) {
-    glViewport(0, 0, width, height);
-}
+void API::SetViewport(uint32_t width, uint32_t height) {}
 }  // namespace Schism::Renderer

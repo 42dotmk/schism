@@ -8,6 +8,8 @@
 
 // This is the main window class, once we start to support wasm, android, this will have to be an interface or something
 namespace Schism::Core {
+using WindowRef = Ref<Window>;
+
 class Window {
     public:
         using NativeHandle = void*;

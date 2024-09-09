@@ -3,13 +3,10 @@ cmake_minimum_required(VERSION 3.18)
 project(schism)
 # set(CMAKE_TOOLCHAIN_FILE $ENV{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake)
 
-option(GLFW_BUILD_DOCS OFF)
-option(GLFW_BUILD_EXAMPLES OFF)
-option(GLFW_BUILD_TESTS OFF)
-
 option(ENABLE_SANITIZER "Enable ASAN/LSAN/UBSAN." OFF)
 option(ENABLE_SANITIZER_THREAD "Enable TSAN ()." OFF)
-option(USE_CPPCHECK "Enable cppcheck, must have cppcheck in the PATH")
+option(USE_CPPCHECK "Enable cppcheck, must have cppcheck in the PATH" OFF)
+option(INCLUDE_WARNING "Include all the warning from the compiler")
 
 # Hardcode the architecture to arm64 on macOS
 if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
@@ -18,35 +15,48 @@ if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
     set(MACOSX TRUE)
     set(CMAKE_OSX_ARCHITECTURES "arm64")
     
-    add_compile_definitions(SCHISM_PLATFORM_MAC)
-    add_compile_definitions(GLFW_EXPOSE_NATIVE_COCOA)
-    add_compile_definitions(GLFW_EXPOSE_NATIVE_NSGL)
+    add_compile_definitions(
+        SCHISM_PLATFORM_MAC
+        GLFW_EXPOSE_NATIVE_COCOA
+        GLFW_EXPOSE_NATIVE_NSGL
+    )
 elseif (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
     message("Windows detected")
 
-    add_compile_definitions(SCHISM_PLATFORM_WIN)
-    add_compile_definitions(GLFW_EXPOSE_NATIVE_WIN32)
-    add_compile_definitions(GLFW_EXPOSE_NATIVE_WGL)
+    add_compile_definitions(
+        SCHISM_PLATFORM_WIN
+        GLFW_EXPOSE_NATIVE_WIN32
+        GLFW_EXPOSE_NATIVE_WGL
+    )
 elseif (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
     message("Linux detected")
     add_compile_definitions(SCHISM_PLATFORM_LINUX)
 
-    if (NOT DEFINED $ENV{XDG_SESSION_TYPE})
+    if (NOT DEFINED ENV{XDG_SESSION_TYPE})
         # default to x11 if we cannot find the session type
         # this is mainly done so it can build in git actions
-        add_compile_definitions(SCHISM_LINUX_X11)
-        add_compile_definitions(GLFW_EXPOSE_NATIVE_X11)
-        add_compile_definitions(GLFW_EXPOSE_NATIVE_GLX)
+        message("Didn't detect the session type")
+        add_compile_definitions(
+            SCHISM_LINUX_X11
+            GLFW_EXPOSE_NATIVE_X11
+            GLFW_EXPOSE_NATIVE_GLX
+        )
     elseif ($ENV{XDG_SESSION_TYPE} STREQUAL "x11")
         message("X11 deteced, building for x11")
-        add_compile_definitions(SCHISM_LINUX_X11)
-        add_compile_definitions(GLFW_EXPOSE_NATIVE_X11)
-        add_compile_definitions(GLFW_EXPOSE_NATIVE_GLX)
+        set(GLFW_BUILD_X11 1)
+        add_compile_definitions(
+            SCHISM_LINUX_X11
+            GLFW_EXPOSE_NATIVE_X11
+            GLFW_EXPOSE_NATIVE_GLX
+        )
     elseif ($ENV{XDG_SESSION_TYPE} STREQUAL "wayland")
         message("Wayland detected, building for wayland")
         set(SCHISM_LINUX_WAYLAND 1)
-        add_compile_definitions(SCHISM_LINUX_WAYLAND)
-        add_compile_definitions(GLFW_EXPOSE_NATIVE_WAYLAND)
+        set(GLFW_BUILD_WAYLAND 1)
+        add_compile_definitions(
+            SCHISM_LINUX_WAYLAND
+            GLFW_EXPOSE_NATIVE_WAYLAND
+        )
         list(APPEND VCPKG_MANIFEST_FEATURES "wayland")
     else()
         message("Cannot detect display protocol, linux")
@@ -64,9 +74,14 @@ elseif (${CMAKE_CXX_COMPILER_ID} STREQUAL "MSVC")
     set(USING_MSVC 1)
 endif()
 
+
 include($ENV{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake)
 
-find_package(glfw3 CONFIG REQUIRED)
+if (${GLFW_BUILD_WAYLAND})
+    message("BUILDING WAYLAND GLFW")
+elseif (${GLFW_BUILD_X11})
+    message("BUILDING X11 GLFW")
+endif()
 find_package(EnTT CONFIG REQUIRED)
 find_package(glad CONFIG REQUIRED)
 find_package(glm CONFIG REQUIRED)
@@ -84,7 +99,8 @@ find_package(sol2 CONFIG REQUIRED)
 find_package(lua REQUIRED)
 find_path(PARALLEL_HASHMAP_INCLUDE_DIRS "parallel_hashmap/btree.h")
 
-set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD 23)
+
 
 if(${ENABLE_SANITIZER})
     message("AddressSanitizer has been enabled")
@@ -112,7 +128,6 @@ if(CMAKE_BUILD_TYPE STREQUAL "Debug")
     elseif(USING_CLANGD)
         add_compile_options(-Weverything)
         add_compile_options(-fcolor-diagnostics)
-        add_compile_options(-msse2)
     endif()
 
     add_compile_definitions(SC_DEBUG)
@@ -164,7 +179,7 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
     asio::asio
     EnTT::EnTT
     glad::glad
-    glfw
+    # glfw
     glm::glm
     imgui::imgui
     # this is becase the port on vcpkg has a bug so we use a submodule to get it 
