@@ -21,6 +21,7 @@
 
 #include <bgfx/bgfx.h>
 #include <glm/gtc/constants.hpp>
+#include <string>
 
 namespace Schism {
 Application::Application(int w, int h, const char* name) {
@@ -124,7 +125,9 @@ void Application::Run() {
         /*ImGui_ImplGlfw_NewFrame();*/
         /*ImGui::NewFrame();*/
         bgfx::touch(0);
-        bgfx::dbgTextPrintf(10, 10, 0x0f, "Testing bgfx");
+        bgfx::dbgTextPrintf(
+            10, 10, 0x0f,
+            std::format("Testing bgfx, {}", ts.GetMiliseconds()).c_str());
         /*m_SceneManager.OnDraw();*/
 
         /*ImGui::Render();*/
