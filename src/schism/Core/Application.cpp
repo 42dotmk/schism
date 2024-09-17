@@ -4,6 +4,8 @@
 #include "AL/alc.h"
 #include "GLFW/glfw3.h"
 #include "Window.h"
+#include "bgfx/defines.h"
+#include "bgfx/platform.h"
 #include "imgui.h"
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
@@ -59,27 +61,27 @@ Application::Application(int w, int h, const char* name) {
         return;
     }
 
-    auto vendor =
-        std::string(reinterpret_cast<const char*>(glGetString(GL_VENDOR)));
-    auto renderer =
-        std::string(reinterpret_cast<const char*>(glGetString(GL_RENDERER)));
-    auto version =
-        std::string(reinterpret_cast<const char*>(glGetString(GL_VERSION)));
-    auto shader_version = std::string(reinterpret_cast<const char*>(
-        glGetString(GL_SHADING_LANGUAGE_VERSION)));
-
-    SC_CORE_INFO("Schism succesfully initialized");
-    SC_CORE_INFO("Gpu - {0} {1}", vendor, renderer);
-    SC_CORE_INFO("Driver - {0}", version);
-    SC_CORE_INFO("Shader Version - {0}", shader_version);
-    SC_CORE_INFO("Processor count - {0}", std::thread::hardware_concurrency());
-
+    /*auto vendor =*/
+    /*    std::string(reinterpret_cast<const char*>(glGetString(GL_VENDOR)));*/
+    /*auto renderer =*/
+    /*    std::string(reinterpret_cast<const char*>(glGetString(GL_RENDERER)));*/
+    /*auto version =*/
+    /*    std::string(reinterpret_cast<const char*>(glGetString(GL_VERSION)));*/
+    /*auto shader_version = std::string(reinterpret_cast<const char*>(*/
+    /*    glGetString(GL_SHADING_LANGUAGE_VERSION)));*/
+    /**/
+    /*SC_CORE_INFO("Schism succesfully initialized");*/
+    /*SC_CORE_INFO("Gpu - {0} {1}", vendor, renderer);*/
+    /*SC_CORE_INFO("Driver - {0}", version);*/
+    /*SC_CORE_INFO("Shader Version - {0}", shader_version);*/
+    /*SC_CORE_INFO("Processor count - {0}", std::thread::hardware_concurrency());*/
+    /**/
     // TEMPPPPP !!!
-    ImGui::CreateContext();
-    ImGuiIO& io = ImGui::GetIO();
-    (void)io;
-
-    ImGui::StyleColorsDark();
+    /*ImGui::CreateContext();*/
+    /*ImGuiIO& io = ImGui::GetIO();*/
+    /*(void)io;*/
+    /**/
+    /*ImGui::StyleColorsDark();*/
     /*ImGui_ImplGlfw_InitForOpenGL(Window->GetGLFWWindow(), true);*/
     /*ImGui_ImplOpenGL3_Init("#version 400");*/
 }
@@ -118,16 +120,17 @@ void Application::Run() {
         m_Ctx->window->ProcessEvents();
         /*m_SceneManager.OnUpdate(ts);*/
 
-        ImGui_ImplOpenGL3_NewFrame();
-        ImGui_ImplGlfw_NewFrame();
-        ImGui::NewFrame();
-
-        bgfx::dbgTextClear();
+        /*ImGui_ImplOpenGL3_NewFrame();*/
+        /*ImGui_ImplGlfw_NewFrame();*/
+        /*ImGui::NewFrame();*/
+        bgfx::touch(0);
         bgfx::dbgTextPrintf(10, 10, 0x0f, "Testing bgfx");
         /*m_SceneManager.OnDraw();*/
 
-        ImGui::Render();
-        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+        /*ImGui::Render();*/
+        /*ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());*/
+        bgfx::setDebug(BGFX_DEBUG_TEXT);
+        bgfx::frame();
 
         m_Ctx->window->Swap();
     }

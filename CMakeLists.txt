@@ -53,9 +53,11 @@ elseif (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
         message("Wayland detected, building for wayland")
         set(SCHISM_LINUX_WAYLAND 1)
         set(GLFW_BUILD_WAYLAND 1)
+        set(BGFX_WITH_WAYLAND TRUE)
         add_compile_definitions(
             SCHISM_LINUX_WAYLAND
             GLFW_EXPOSE_NATIVE_WAYLAND
+            WL_EGL_PLATFORM
         )
         list(APPEND VCPKG_MANIFEST_FEATURES "wayland")
     else()
@@ -74,6 +76,7 @@ elseif (${CMAKE_CXX_COMPILER_ID} STREQUAL "MSVC")
     set(USING_MSVC 1)
 endif()
 
+set(CMAKE_CXX_STANDARD 23)
 
 include($ENV{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake)
 
@@ -82,11 +85,11 @@ if (${GLFW_BUILD_WAYLAND})
 elseif (${GLFW_BUILD_X11})
     message("BUILDING X11 GLFW")
 endif()
+
 find_package(EnTT CONFIG REQUIRED)
 find_package(glad CONFIG REQUIRED)
 find_package(glm CONFIG REQUIRED)
 find_package(imgui CONFIG REQUIRED)
-find_package(bgfx CONFIG REQUIRED)
 
 # this is commented out because there is a bug in imguizmo version 1.83
 # using it as a submodule
@@ -99,8 +102,7 @@ find_package(sol2 CONFIG REQUIRED)
 find_package(lua REQUIRED)
 find_path(PARALLEL_HASHMAP_INCLUDE_DIRS "parallel_hashmap/btree.h")
 
-set(CMAKE_CXX_STANDARD 23)
-
+add_subdirectory("vendor/bgfx")
 
 if(${ENABLE_SANITIZER})
     message("AddressSanitizer has been enabled")
@@ -188,10 +190,10 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
     spdlog::spdlog
     sol2
     ${LUA_LIBRARIES}
-    bgfx::bx
-    bgfx::bgfx
-    bgfx::bimg
-    bgfx::bimg_decode
+    bx
+    bgfx
+    bimg
+    bimg_decode
 )
 
 target_include_directories(${PROJECT_NAME} PRIVATE ${PARALLEL_HASHMAP_INCLUDE_DIRS})

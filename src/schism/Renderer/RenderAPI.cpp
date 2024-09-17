@@ -25,9 +25,10 @@ bool API::Init(Core::WindowRef window) {
     bgfxInit.resolution.width = window->GetWidth();
     bgfxInit.resolution.height = window->GetHeight();
 
-    bgfxInit.resolution.reset = BGFX_RESET_VSYNC;
+    /*bgfxInit.resolution.reset = BGFX_RESET_VSYNC;*/
 
     bgfxInit.platformData.nwh = window->GetNativeHandle();
+    bgfxInit.platformData.ndt = window->GetNativeDisplay();
 
     int k = 1;
 

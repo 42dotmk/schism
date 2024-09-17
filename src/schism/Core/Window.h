@@ -36,6 +36,8 @@ class Window {
         // Temporary, shouldn't expose glfw window, or maybe it should, idk
         GLFWwindow* GetGLFWWindow() const { return m_WindowPtr; }
 
+        NativeHandle GetNativeDisplay() const { return m_nativeDisplay; };
+
         NativeHandle GetNativeHandle() const { return m_nativeHandle; }
 
     private:
@@ -49,6 +51,7 @@ class Window {
 
         bool m_created;
         NativeHandle m_nativeHandle;
+        NativeHandle m_nativeDisplay;
         GLFWwindowHandle m_WindowPtr;
 
         detail::WindowData m_Data;

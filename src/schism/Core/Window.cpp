@@ -77,6 +77,11 @@ void Window::SetNativeHandle() {
     SC_ASSERT(surface, "Cannot get native wayland window surface");
 
     m_nativeHandle = wl_egl_window_create(surface, m_Data.Width, m_Data.Height);
+    m_nativeDisplay = glfwGetWaylandDisplay();
+
+    SC_ASSERT(m_nativeHandle, "Native window handle isn't valid");
+    SC_ASSERT(m_nativeDisplay, "Native window handle isn't valid");
+
 #elif defined(SCHISM_LINUX_X11)
     m_nativeHandle = (void*)(uintptr_t)glfwGetX11Window(m_WindowPtr);
 #else
