@@ -141,9 +141,7 @@ void Application::Run() {
         bgfx::touch(0);
 
         /*ImGui::NewFrame();*/
-        bgfx::dbgTextPrintf(
-            10, 10, 0x0f,
-            std::format("Testing bgfx, {}", ts.GetMiliseconds()).c_str());
+        bgfx::dbgTextPrintf(10, 10, 0x0f, "Testing BGFX");
         /*m_SceneManager.OnDraw();*/
 
         /*ImGui::Render();*/
