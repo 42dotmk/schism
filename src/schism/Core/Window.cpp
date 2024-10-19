@@ -2,9 +2,9 @@
 
 #include <GLFW/glfw3.h>
 #include <GLFW/glfw3native.h>
-#include <wayland-egl-core.h>
 
 #if defined(SCHISM_LINUX_WAYLAND)
+#include <wayland-egl-core.h>
 #include <wayland-egl.h>
 #endif
 
