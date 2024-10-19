@@ -24,7 +24,7 @@ class Window {
 
         void SwapEventAdapter(Ref<EventAdapterBase> eventAdapter);
 
-        void Resize();
+        void Resize(std::size_t width, std::size_t height);
 
         int GetWidth() const { return m_Data.Width; }
 

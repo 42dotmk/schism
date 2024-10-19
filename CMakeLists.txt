@@ -137,7 +137,7 @@ else()
     add_compile_definitions(SC_NODEBUG)
 endif()
 
-add_compile_definitions(IMGUI_IMPL_OPENGL_LOADER_GLAD USE_IMGUI_API STB_IMAGE_IMPLEMENTATION)
+add_compile_definitions(USE_IMGUI_API STB_IMAGE_IMPLEMENTATION)
 
 include_directories(
                     vendor/json/include/
@@ -147,11 +147,12 @@ include_directories(
                     vendor/imguizmo/
                     ${Stb_INCLUDE_DIR}
                     ${LUA_INCLUDE_DIR}
+                    vendor/bgfx-imgui/
                     src/
 )
 
-
 file(GLOB GUIZMO_SOURCES vendor/imguizmo/*.cpp)
+file(GLOB BGFX_IMGUI vendor/bgfx-imgui/*.cpp)
 file(GLOB_RECURSE SOURCES src/*.cpp)
 file(GLOB_RECURSE HEADERS src/*.h)
 file(GLOB_RECURSE RESOURCES res/*)
@@ -171,6 +172,7 @@ add_definitions(-DGLFW_INCLUDE_NONE
 add_executable(${PROJECT_NAME}
                     ${SOURCES}
                     ${GUIZMO_SOURCES}
+                    ${BGFX_IMGUI}
                     ${PROJECT_CONFIGS})
 
 if (${SCHISM_LINUX_WAYLAND})
@@ -181,7 +183,7 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
     asio::asio
     EnTT::EnTT
     glad::glad
-    # glfw
+    glfw
     glm::glm
     imgui::imgui
     # this is becase the port on vcpkg has a bug so we use a submodule to get it 

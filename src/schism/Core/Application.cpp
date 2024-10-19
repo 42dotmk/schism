@@ -7,8 +7,8 @@
 #include "bgfx/defines.h"
 #include "bgfx/platform.h"
 #include "imgui.h"
+#include "imconfig.h"
 #include "imgui_impl_glfw.h"
-#include "imgui_impl_opengl3.h"
 #include "schism/Core/EventHandlers/EventManager.h"
 #include "schism/Core/EventHandlers/KeyboardEventHandler.h"
 #include "schism/Core/EventHandlers/MouseEventHandler.h"
@@ -20,16 +20,12 @@
 #include "schism/System/System.h"
 
 #include <bgfx/bgfx.h>
+#include <imgui_impl_bgfx.h>
 #include <glm/gtc/constants.hpp>
 #include <string>
 
 namespace Schism {
 Application::Application(int w, int h, const char* name) {
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
-    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
-
     Core::WindowRef Window = MakeRef<Core::Window>();
 
     SetupEventHandlers();
@@ -51,7 +47,7 @@ Application::Application(int w, int h, const char* name) {
     m_SceneManager.InitContext(m_Ctx);
 
     SC_CORE_ERROR("Got here before window");
-    Renderer::API::Init(Window);
+    auto renderType = Renderer::API::Init(Window);
 
     SC_CORE_ERROR("Got here after window");
     ALCdevice* aldevice = alcOpenDevice(nullptr);
@@ -78,13 +74,32 @@ Application::Application(int w, int h, const char* name) {
     /*SC_CORE_INFO("Processor count - {0}", std::thread::hardware_concurrency());*/
     /**/
     // TEMPPPPP !!!
-    /*ImGui::CreateContext();*/
-    /*ImGuiIO& io = ImGui::GetIO();*/
-    /*(void)io;*/
-    /**/
-    /*ImGui::StyleColorsDark();*/
-    /*ImGui_ImplGlfw_InitForOpenGL(Window->GetGLFWWindow(), true);*/
-    /*ImGui_ImplOpenGL3_Init("#version 400");*/
+    //
+
+    ImGui::CreateContext();
+    ImGuiIO& io = ImGui::GetIO();
+
+    io.DisplaySize.x = Window->GetWidth();
+    io.DisplaySize.y = Window->GetHeight();
+
+    (void)io;
+
+    ImGui::StyleColorsDark();
+    ImGui_Implbgfx_Init(0);
+
+    auto* glfwWindow = Window->GetGLFWWindow();
+    switch (*renderType) {
+        case bgfx::RendererType::Vulkan:
+            ImGui_ImplGlfw_InitForVulkan(glfwWindow, true);
+            break;
+
+        case bgfx::RendererType::OpenGL:
+            ImGui_ImplGlfw_InitForOpenGL(glfwWindow, true);
+            break;
+
+        default:
+            ImGui_ImplGlfw_InitForOther(glfwWindow, true);
+    }
 }
 
 Application::~Application() {
@@ -95,6 +110,8 @@ void Application::OnEvent(Event& e) {
     EventHandler evt(e);
 
     CLASSEVENT(evt, WindowResizeEvent) {
+        SC_CORE_WARN("Window resized");
+        /*m_Ctx->window->Resize(e.GetWidth(), e.GetHeight());*/
         Renderer::API::SetViewport(e.GetWidth(), e.GetHeight());
     });
 
@@ -121,19 +138,26 @@ void Application::Run() {
         m_Ctx->window->ProcessEvents();
         /*m_SceneManager.OnUpdate(ts);*/
 
-        /*ImGui_ImplOpenGL3_NewFrame();*/
-        /*ImGui_ImplGlfw_NewFrame();*/
-        /*ImGui::NewFrame();*/
         bgfx::touch(0);
+
+        /*ImGui::NewFrame();*/
         bgfx::dbgTextPrintf(
             10, 10, 0x0f,
             std::format("Testing bgfx, {}", ts.GetMiliseconds()).c_str());
         /*m_SceneManager.OnDraw();*/
 
         /*ImGui::Render();*/
-        /*ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());*/
-        bgfx::setDebug(BGFX_DEBUG_TEXT);
+        /*bgfx::setDebug(BGFX_DEBUG_TEXT);*/
         bgfx::frame();
+
+        ImGui_Implbgfx_NewFrame();
+        ImGui_ImplGlfw_NewFrame();
+
+        ImGui::NewFrame();
+        ImGui::ShowDemoWindow();
+        ImGui::Render();
+
+        ImGui_Implbgfx_RenderDrawLists(ImGui::GetDrawData());
 
         m_Ctx->window->Swap();
     }

@@ -2,6 +2,7 @@
 
 #include <GLFW/glfw3.h>
 #include <GLFW/glfw3native.h>
+#include <wayland-egl-core.h>
 
 #if defined(SCHISM_LINUX_WAYLAND)
 #include <wayland-egl.h>
@@ -23,7 +24,6 @@ Window::~Window() {
 
 void Window::Create(int w, int h, const char* name,
                     Ref<EventAdapterBase> eventAdapter) {
-
     if (m_created) {
         SC_CORE_ERROR(
             "Trying to create a window, while this current window is already "
@@ -63,6 +63,15 @@ void Window::ProcessEvents() {
     glfwPollEvents();
 }
 
+void Window::Resize(std::size_t width, std::size_t height) {
+    glfwSetWindowSize(m_WindowPtr, width, height);
+
+#if defined(SCHISM_LINUX_WAYLAND)
+    auto* wlWindow = reinterpret_cast<wl_egl_window*>(m_nativeHandle);
+    wl_egl_window_resize(wlWindow, width, height, 0, 0);
+#endif
+}
+
 void Window::Swap() const {
     glfwSwapBuffers(m_WindowPtr);
 }
@@ -76,11 +85,12 @@ void Window::SetNativeHandle() {
 
     SC_ASSERT(surface, "Cannot get native wayland window surface");
 
+    // not sure if width and height should be updated manually
     m_nativeHandle = wl_egl_window_create(surface, m_Data.Width, m_Data.Height);
     m_nativeDisplay = glfwGetWaylandDisplay();
 
     SC_ASSERT(m_nativeHandle, "Native window handle isn't valid");
-    SC_ASSERT(m_nativeDisplay, "Native window handle isn't valid");
+    SC_ASSERT(m_nativeDisplay, "Native display handle isn't valid");
 
 #elif defined(SCHISM_LINUX_X11)
     m_nativeHandle = (void*)(uintptr_t)glfwGetX11Window(m_WindowPtr);

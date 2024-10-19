@@ -8,7 +8,8 @@
 namespace Schism::Renderer {
 class API {
     public:
-        static bool Init(Core::WindowRef window);
+        static std::optional<bgfx::RendererType::Enum> Init(
+            Core::WindowRef window);
         static void Shutdown();
 
         static void SetClearColor(const glm::vec4& color);

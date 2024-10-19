@@ -19,13 +19,7 @@
             ]
         },
         "sol2",
-        "lua",
-        {
-            "name": "bgfx",
-            "features": [
-                "multithreaded"
-            ]
-        }
+        "lua"
     ],
     "features": {
         "wayland": {
