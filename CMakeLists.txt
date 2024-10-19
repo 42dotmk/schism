@@ -24,7 +24,7 @@ elseif (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
     message("Windows detected")
 
     add_compile_definitions(
-        SCHISM_PLATFORM_WIN
+        SCHISM_PLATFORM_WINDOWS
         GLFW_EXPOSE_NATIVE_WIN32
         GLFW_EXPOSE_NATIVE_WGL
     )
