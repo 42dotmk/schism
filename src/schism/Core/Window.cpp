@@ -95,7 +95,7 @@ void Window::SetNativeHandle() {
 #elif defined(SCHISM_LINUX_X11)
     m_nativeHandle = (void*)(uintptr_t)glfwGetX11Window(m_WindowPtr);
 #else
-    SC_STATIC_FAIL("Not a supported window protocol")
+    SC_STATIC_FAIL("Not a supported linux window protocol")
 #endif
 
 #elif defined(SCHISM_PLATFORM_WINDOWS)

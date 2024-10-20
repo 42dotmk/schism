@@ -1,7 +1,8 @@
 #pragma once
 
+#include <schism/System/Debug.h>
+
 #include <functional>
-#include "schism/System/Debug.h"
 
 namespace Schism::Util {
 
@@ -10,12 +11,12 @@ class SingleSignal {
         using func = std::function<T>;
 
     public:
-        ~SingleSignal() { disconnect_slot(); }
-
         void disconnect_slot() { m_func = nullptr; }
 
         void connect(func&& callback) { m_func = std::move(callback); }
 
+        // this possibly has to be guarded if we have a void return type
+        // BUG prone
         auto operator()() { return m_func(); }
 
         template <typename... Args>
