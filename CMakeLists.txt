@@ -1,23 +1,68 @@
 cmake_minimum_required(VERSION 3.18)
-project(schism)
 
-option(GLFW_BUILD_DOCS OFF)
-option(GLFW_BUILD_EXAMPLES OFF)
-option(GLFW_BUILD_TESTS OFF)
+project(schism)
+# set(CMAKE_TOOLCHAIN_FILE $ENV{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake)
 
 option(ENABLE_SANITIZER "Enable ASAN/LSAN/UBSAN." OFF)
 option(ENABLE_SANITIZER_THREAD "Enable TSAN ()." OFF)
-option(USE_CPPCHECK "Enable cppcheck, must have cppcheck in the PATH")
+option(USE_CPPCHECK "Enable cppcheck, must have cppcheck in the PATH" OFF)
+option(INCLUDE_WARNING "Include all the warning from the compiler")
 
 # Hardcode the architecture to arm64 on macOS
 if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+    message("MacOs detected")
+
     set(MACOSX TRUE)
     set(CMAKE_OSX_ARCHITECTURES "arm64")
-    add_compile_definitions(SCHISM_PLATFORM_MAC)
+    
+    add_compile_definitions(
+        SCHISM_PLATFORM_MAC
+        GLFW_EXPOSE_NATIVE_COCOA
+        GLFW_EXPOSE_NATIVE_NSGL
+    )
 elseif (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
-    add_compile_definitions(SCHISM_PLATFORM_WIN)
+    message("Windows detected")
+
+    add_compile_definitions(
+        SCHISM_PLATFORM_WINDOWS
+        GLFW_EXPOSE_NATIVE_WIN32
+        GLFW_EXPOSE_NATIVE_WGL
+    )
 elseif (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
+    message("Linux detected")
     add_compile_definitions(SCHISM_PLATFORM_LINUX)
+
+    if (NOT DEFINED ENV{XDG_SESSION_TYPE})
+        # default to x11 if we cannot find the session type
+        # this is mainly done so it can build in git actions
+        message("Didn't detect the session type")
+        add_compile_definitions(
+            SCHISM_LINUX_X11
+            GLFW_EXPOSE_NATIVE_X11
+            GLFW_EXPOSE_NATIVE_GLX
+        )
+    elseif ($ENV{XDG_SESSION_TYPE} STREQUAL "x11")
+        message("X11 deteced, building for x11")
+        set(GLFW_BUILD_X11 1)
+        add_compile_definitions(
+            SCHISM_LINUX_X11
+            GLFW_EXPOSE_NATIVE_X11
+            GLFW_EXPOSE_NATIVE_GLX
+        )
+    elseif ($ENV{XDG_SESSION_TYPE} STREQUAL "wayland")
+        message("Wayland detected, building for wayland")
+        set(SCHISM_LINUX_WAYLAND 1)
+        set(GLFW_BUILD_WAYLAND 1)
+        set(BGFX_WITH_WAYLAND TRUE)
+        add_compile_definitions(
+            SCHISM_LINUX_WAYLAND
+            GLFW_EXPOSE_NATIVE_WAYLAND
+            WL_EGL_PLATFORM
+        )
+        list(APPEND VCPKG_MANIFEST_FEATURES "wayland")
+    else()
+        message("Cannot detect display protocol, linux")
+    endif()
 endif()
 
 if (${CMAKE_CXX_COMPILER_ID} STREQUAL "GNU")
@@ -31,17 +76,20 @@ elseif (${CMAKE_CXX_COMPILER_ID} STREQUAL "MSVC")
     set(USING_MSVC 1)
 endif()
 
+set(CMAKE_CXX_STANDARD 23)
 
-# set(CMAKE_TOOLCHAIN_FILE $ENV{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake)
-# find_package(glfw3 CONFIG REQUIRED)
 include($ENV{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake)
 
-find_package(glfw3 CONFIG REQUIRED)
+if (${GLFW_BUILD_WAYLAND})
+    message("BUILDING WAYLAND GLFW")
+elseif (${GLFW_BUILD_X11})
+    message("BUILDING X11 GLFW")
+endif()
+
 find_package(EnTT CONFIG REQUIRED)
 find_package(glad CONFIG REQUIRED)
 find_package(glm CONFIG REQUIRED)
 find_package(imgui CONFIG REQUIRED)
-find_package(bgfx CONFIG REQUIRED)
 
 # this is commented out because there is a bug in imguizmo version 1.83
 # using it as a submodule
@@ -54,13 +102,19 @@ find_package(sol2 CONFIG REQUIRED)
 find_package(lua REQUIRED)
 find_path(PARALLEL_HASHMAP_INCLUDE_DIRS "parallel_hashmap/btree.h")
 
-set(CMAKE_CXX_STANDARD 20)
+add_subdirectory("vendor/bgfx")
 
 if(${ENABLE_SANITIZER})
+    message("AddressSanitizer has been enabled")
     add_compile_options(-fsanitize=address -fno-sanitize=alignment -fsanitize=enum -fsanitize=leak)
     if(ENABLE_SANITIZER_THREAD)
         add_compile_options(-fsanitize=undefined -fno-sanitize=alignment -fsanitize=enum -fsanitize=thread)
     endif()
+
+    link_libraries(
+        -fsanitize=address
+        -fno-sanitize=alignment -fsanitize=enum -fsanitize=leak
+    )
 
     if(ENABLE_SANITIZER AND ENABLE_SANITIZER_THREAD)
         message(FATAL_ERROR "ENABLE_SANITIZER and ENABLE_SANITIZER_THREAD can not be used together!")
@@ -72,7 +126,7 @@ if(CMAKE_BUILD_TYPE STREQUAL "Debug")
         add_compile_options(/W4)
     elseif(USING_GCC)
         add_compile_options(-fdiagnostics-color=always)
-        add_compile_options(-Wall -Wextra -Wpedantic -Weffc++)
+        # add_compile_options(-Wall -Wextra -Wpedantic -Weffc++)
     elseif(USING_CLANGD)
         add_compile_options(-Weverything)
         add_compile_options(-fcolor-diagnostics)
@@ -83,7 +137,7 @@ else()
     add_compile_definitions(SC_NODEBUG)
 endif()
 
-add_compile_definitions(IMGUI_IMPL_OPENGL_LOADER_GLAD USE_IMGUI_API)
+add_compile_definitions(USE_IMGUI_API STB_IMAGE_IMPLEMENTATION)
 
 include_directories(
                     vendor/json/include/
@@ -93,11 +147,12 @@ include_directories(
                     vendor/imguizmo/
                     ${Stb_INCLUDE_DIR}
                     ${LUA_INCLUDE_DIR}
+                    vendor/bgfx-imgui/
                     src/
 )
 
-
 file(GLOB GUIZMO_SOURCES vendor/imguizmo/*.cpp)
+file(GLOB BGFX_IMGUI vendor/bgfx-imgui/*.cpp)
 file(GLOB_RECURSE SOURCES src/*.cpp)
 file(GLOB_RECURSE HEADERS src/*.h)
 file(GLOB_RECURSE RESOURCES res/*)
@@ -117,7 +172,12 @@ add_definitions(-DGLFW_INCLUDE_NONE
 add_executable(${PROJECT_NAME}
                     ${SOURCES}
                     ${GUIZMO_SOURCES}
+                    ${BGFX_IMGUI}
                     ${PROJECT_CONFIGS})
+
+if (${SCHISM_LINUX_WAYLAND})
+    target_link_libraries(${PROJECT_NAME} PRIVATE wayland-egl)
+endif()
 
 target_link_libraries(${PROJECT_NAME} PRIVATE
     asio::asio
@@ -126,19 +186,28 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
     glfw
     glm::glm
     imgui::imgui
+    # this is becase the port on vcpkg has a bug so we use a submodule to get it 
     # imguizmo::imguizmo
     OpenAL::OpenAL
     spdlog::spdlog
     sol2
     ${LUA_LIBRARIES}
-    bgfx::bx
-    bgfx::bgfx
-    bgfx::bimg
-    bgfx::bimg_decode
+    bx
+    bgfx
+    bimg
+    bimg_decode
 )
 
 target_include_directories(${PROJECT_NAME} PRIVATE ${PARALLEL_HASHMAP_INCLUDE_DIRS})
 
+# this will have to be moved when we switch to c++ modules and also when
+# we switch to different projects for the runtime and the editor
+# for now leave it like this
+# if we enable pre compiled headers there is a bug that happens with the definition of _OPTIMIZE
+# spdlog or to be more exact defines _OPTIMIZE there and when stb image calls simd instructions
+# it's selecting the wrong or let's say another function/macro definition that is unable to compiled
+# very fucking interesting!
+# target_precompile_headers(${PROJECT_NAME} PRIVATE "./src/schism/pch.h")
 
 set(OUTPUT_DIR ${CMAKE_SOURCE_DIR}/bin/)
 

@@ -23,16 +23,22 @@ Source::Source(const std::vector<char>& data, std::uint32_t sampleRate,
 }
 
 Ref<Source> Source::Create(std::filesystem::path filePath) {
+    if (filePath.extension() != ".wav") {
+        SC_CORE_ERROR(
+            "At this point we only support wav audio format, unable to load {}",
+            filePath.string());
+    }
+
     WavLoader wav(filePath);
 
     if (!wav.Load()) {
-        SC_CORE_ERROR("Error creating audio source, with file: ",
+        SC_CORE_ERROR("Error creating audio source, with file: {}",
                       filePath.string());
         return nullptr;
     }
     auto& header = wav.Header();
     auto& data = wav.Data();
-    SC_CORE_INFO("Wav file loaded!");
+
     return MakeRef<Source>(data, header.sampleRate, header.bitsPerSample,
                            header.channels);
 }

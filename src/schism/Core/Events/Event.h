@@ -52,7 +52,7 @@ class EventHandler {
         template <typename T, typename F,
                   typename = typename std::enable_if<
                       std::is_base_of<Event, T>::value>::type>
-        constexpr auto Handle(const F& func) {
+        inline constexpr auto Handle(const F& func) {
             if (m_Evt.GetEventType() == T::GetStaticType()) {
                 auto e = static_cast<T&>(m_Evt);
                 using ret_type = decltype(func(e));

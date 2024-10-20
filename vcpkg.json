@@ -1,6 +1,6 @@
 {
     "name": "schism",
-    "builtin-baseline": "352c108a6b6d698c09a8272d8e95fdce550ae408",
+    "builtin-baseline": "68d349964cb4e8da561fd849d9491e6ba11c5681",
     "dependencies" : [
         "glfw3",
         "openal-soft",
@@ -19,12 +19,19 @@
             ]
         },
         "sol2",
-        "lua",
-        {
-            "name": "bgfx",
-            "features": [
-                "multithreaded"
+        "lua"
+    ],
+    "features": {
+        "wayland": {
+            "description": "Build with native wayland support",
+            "dependencies": [
+                {
+                    "name": "glfw3",
+                    "features": [
+                        "wayland"
+                    ]
+                }
             ]
         }
-    ]
+    }
 }

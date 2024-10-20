@@ -2,12 +2,7 @@
 
 #include <AL/al.h>
 #include <AL/alc.h>
-#include <chrono>
-#include <filesystem>
-#include <thread>
 #include "chess/Chess.h"
-#include "schism/Audio/Source.h"
-#include "schism/Audio/WavLoader.h"
 #include "schism/Sandbox/SampleScene.h"
 #include "schism/System/Log.h"
 
@@ -30,11 +25,11 @@ Game::Game() : Application(800, 800, "Chess") {
     m_SceneManager.Register<SampleScene>("sample scene");
     // m_SceneManager.Register<Chess::Chess>("chess");
 
-    ALfloat listenerOri[] = {0.f, 0.f, 1.f, 0.f, 1.f, 0.f};
+    ALfloat listernetOrientation[] = {0.f, 0.f, 1.f, 0.f, 1.f, 0.f};
 
     alListener3f(AL_POSITION, 0, 0, 1.f);
     alListener3f(AL_VELOCITY, 0, 0, 0);
-    alListenerfv(AL_ORIENTATION, listenerOri);
+    alListenerfv(AL_ORIENTATION, listernetOrientation);
     SC_CORE_INFO("Playing audio!");
     m_Ctx->GlobalAssets.Audio.GetHandle("testaudio")->Play();
 }

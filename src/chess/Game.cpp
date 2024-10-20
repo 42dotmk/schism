@@ -30,7 +30,6 @@ Game::Game(
         m_State.gameId = e.gameId;
         m_Engine.Reset();
     });
-
     ListenGameEvent<Net::SuccessfulMove>([this](Net::SuccessfulMove&& e) {
         if (e.gameId != m_State.gameId) {
             return;  // todo:: Handle multiple games

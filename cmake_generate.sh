@@ -18,8 +18,9 @@ fi
 
 # add cmake presets in the future
 if [ "$build_type" == "Debug" ]; then
-    cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE="$build_type" -DCMAKE_EXPORT_COMPILE_COMMANDS=1 -DENABLE_SANITIZER=1 -DUSE_CPPCHECK=0
-    cp ./build/compile_commands.json ./
+    if cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE="$build_type" -DCMAKE_EXPORT_COMPILE_COMMANDS=1 -DENABLE_SANITIZER=1 -DUSE_CPPCHECK=0; then
+        cp ./build/compile_commands.json ./
+    fi
 else
     cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE="$build_type"
 fi
