@@ -68,11 +68,10 @@ void Window::HookGLFWEventFunctions() {
 }
 
 void Window::HookMouseEvents() {
-    SC_ASSERT(m_Data.eventManager, "There is no attached EventManager");
-
     glfwSetScrollCallback(
         m_WindowPtr, [](GLFWwindow* win, double xoffset, double yoffset) {
             auto data = static_cast<WindowData*>(glfwGetWindowUserPointer(win));
+            SC_ASSERT(data->eventAdapter, "There is no attached EventAdapter");
             data->eventAdapter->OnEvent(MouseScrollEvent(xoffset, yoffset));
         });
 
@@ -85,6 +84,8 @@ void Window::HookMouseEvents() {
         }
 
         auto data = static_cast<WindowData*>(glfwGetWindowUserPointer((win)));
+
+        SC_ASSERT(data->eventAdapter, "There is no attached EventAdapter");
 
         double xpos;
         double ypos;
@@ -105,29 +106,31 @@ void Window::HookMouseEvents() {
     glfwSetCursorPosCallback(m_WindowPtr, [](GLFWwindow* win, double xpos,
                                              double ypos) {
         auto data = static_cast<WindowData*>(glfwGetWindowUserPointer((win)));
+        SC_ASSERT(data->eventAdapter, "There is no attached EventAdapter");
         data->eventAdapter->OnEvent(MouseMoveEvent(xpos, ypos));
     });
 }
 
 void Window::HookWindowEvents() {
-    SC_ASSERT(m_Data.eventManager, "There is no attached EventManager");
     glfwSetWindowSizeCallback(m_WindowPtr, [](GLFWwindow* win, int width,
                                               int height) {
         auto data = static_cast<WindowData*>(glfwGetWindowUserPointer((win)));
+        SC_ASSERT(data->eventAdapter, "There is no attached EventAdapter");
         data->eventAdapter->OnEvent(WindowResizeEvent(width, height));
     });
 
     glfwSetWindowCloseCallback(m_WindowPtr, [](GLFWwindow* win) {
         auto data = static_cast<WindowData*>(glfwGetWindowUserPointer((win)));
+        SC_ASSERT(data->eventAdapter, "There is no attached EventAdapter");
         data->eventAdapter->OnEvent(WindowCloseEvent());
     });
 }
 
 void Window::HookKeyEvents() {
-    SC_ASSERT(m_Data.eventManager, "There is no attached EventManager");
     glfwSetKeyCallback(m_WindowPtr, [](GLFWwindow* win, int key, int scancode,
                                        int action, int mods) {
         auto data = static_cast<WindowData*>(glfwGetWindowUserPointer((win)));
+        SC_ASSERT(data->eventAdapter, "There is no attached EventAdapter");
         if (action == GLFW_PRESS) {
             data->eventAdapter->OnEvent(KeyDownEvent((Keyboard::Key)key));
         } else if (action == GLFW_RELEASE) {
